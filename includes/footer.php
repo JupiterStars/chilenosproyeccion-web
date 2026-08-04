@@ -7,9 +7,9 @@
         <a class="logo logo--footer" href="<?= e(app_url('/')) ?>">
           <img
             class="logo-img logo-img--static"
-            src="<?= e(app_url('/assets/brand/logo-fc-rojo.png')) ?>"
-            width="40"
-            height="40"
+            src="<?= e(app_url('/assets/brand/logo-fc-rojo.png')) ?>?v=20260804j"
+            width="44"
+            height="44"
             alt="Futbolistas Chilenos"
             decoding="async"
           />
@@ -37,7 +37,6 @@
         <ul>
           <li><a href="<?= e(app_url('/quienes-somos')) ?>">Quiénes somos</a></li>
           <li><a href="<?= e(app_url('/contacto')) ?>">Contacto</a></li>
-          <li><a href="<?= e(app_url('/newsletter')) ?>">Newsletter</a></li>
         </ul>
         <div class="footer-social">
           <a href="<?= e(social_facebook_url()) ?>" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook">
@@ -61,6 +60,7 @@
           <li><a href="<?= e(app_url('/legales/aviso-legal')) ?>">Aviso legal</a></li>
           <li><a href="<?= e(app_url('/legales/propiedad-intelectual')) ?>">Propiedad intelectual</a></li>
           <li><a href="<?= e(app_url('/legales/contacto-legal')) ?>">Contacto legal</a></li>
+          <li><a href="<?= e(app_url('/legales/politica-editorial')) ?>">Política editorial</a></li>
         </ul>
       </div>
     </div>
@@ -89,10 +89,10 @@
         <div class="cookie-consent-copy">
           <h2 id="cookie-consent-title" class="cookie-consent-title">Tu privacidad en este sitio</h2>
           <p id="cookie-consent-desc" class="cookie-consent-text">
-            Usamos cookies <strong>necesarias</strong> para que la web funcione (por ejemplo, recordar el tema claro u oscuro).
-            Con tu permiso también usamos cookies para <strong>medir visitas</strong> y, si corresponde,
-            <strong>publicidad</strong>.
-            Podés aceptar todas o quedarte solo con las necesarias.
+            Utilizamos cookies <strong>necesarias</strong> para el funcionamiento del sitio (por ejemplo, preferencias de visualización y el registro de su elección).
+            Con su consentimiento también podemos emplear cookies para <strong>medir visitas</strong> y, si corresponde, <strong>publicidad</strong>.
+            Puede aceptar todas o continuar solo con las necesarias. La información se trata conforme a la normativa chilena vigente y a las políticas de
+            <strong>Futbolistas Chilenos</strong> / <strong>Chilenos Proyección</strong>.
           </p>
           <p class="cookie-consent-links">
             <a href="<?= e(app_url('/legales/politica-cookies')) ?>">Política de cookies</a>

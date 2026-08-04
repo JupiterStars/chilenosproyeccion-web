@@ -10,8 +10,8 @@ $divisiones = nav_divisiones();
 $tickerBandas = ticker_bandas();
 $socialFb = social_facebook_url();
 $socialIg = social_instagram_url();
-$logoFj = app_url('/assets/brand/logo-fj-naranja.png');
-$logoFc = app_url('/assets/brand/logo-fc-rojo.png');
+$logoFj = app_url('/assets/brand/logo-fj-naranja.png') . '?v=20260804j';
+$logoFc = app_url('/assets/brand/logo-fc-rojo.png') . '?v=20260804j';
 $faviconFc = app_url('/assets/brand/favicon-fc.png');
 // Redes: solo menú móvil / footer — no en header superior
 ?>
@@ -75,7 +75,7 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804h" />
+  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804j" />
 </head>
 <body class="<?= e($bodyClass) ?>">
   <!-- Google Tag Manager (noscript) -->
@@ -115,7 +115,7 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
                 $clubL = (string) ($item['club_local'] ?? $item['club'] ?? '');
                 $clubV = (string) ($item['club_visita'] ?? '');
                 $score = (string) ($item['score'] ?? '');
-                $cat = (string) ($item['categoria'] ?? '');
+                $tickerCat = (string) ($item['categoria'] ?? '');
                 $cuando = (string) ($item['cuando'] ?? '');
                 $txt = (string) ($item['text'] ?? '');
               ?>
@@ -138,8 +138,8 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
                   <?php if ($cuando !== ''): ?>
                     <span class="site-ticker-meta"><?= e($cuando) ?></span>
                   <?php endif; ?>
-                  <?php if ($cat !== ''): ?>
-                    <span class="site-ticker-meta"><?= e($cat) ?></span>
+                  <?php if ($tickerCat !== ''): ?>
+                    <span class="site-ticker-meta"><?= e($tickerCat) ?></span>
                   <?php endif; ?>
                 <?php endif; ?>
               </span>
@@ -267,8 +267,8 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
           <a href="<?= e(app_url('/goleadores/sub-20')) ?>">Goleadores</a>
           <a href="<?= e(app_url('/posiciones/sub-20')) ?>">Posiciones</a>
           <a href="<?= e(app_url('/programacion/sub-20')) ?>">Programación</a>
-          <a href="<?= e(app_url('/newsletter')) ?>">Newsletter</a>
           <a href="<?= e(app_url('/contacto')) ?>">Contacto</a>
+          <a href="<?= e(app_url('/quienes-somos')) ?>">Quiénes somos</a>
         </div>
         <div class="mobile-social" aria-label="Redes sociales">
           <a class="btn-social" href="<?= e($socialFb) ?>" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook">

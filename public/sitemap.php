@@ -39,12 +39,14 @@ $urls = [
     '/goleadores/sub-20',
     '/posiciones/sub-20',
     '/programacion/sub-20',
-    '/newsletter',
     '/contacto',
     '/quienes-somos',
     '/legales/politica-privacidad',
     '/legales/terminos-y-condiciones',
     '/legales/politica-cookies',
+    '/legales/aviso-legal',
+    '/legales/propiedad-intelectual',
+    '/legales/contacto-legal',
     '/legales/politica-editorial',
 ];
 try {

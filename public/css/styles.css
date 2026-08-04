@@ -532,7 +532,7 @@ body.nav-open { overflow: hidden; touch-action: none; }
 .mobile-nav-brand {
   display: flex; align-items: center; gap: .65rem; min-width: 0;
 }
-.mobile-nav-brand .logo-img { width: 36px; height: 36px; border-radius: 10px; }
+.mobile-nav-brand .logo-img { width: 36px; height: 36px; border-radius: 0; object-fit: contain; background: transparent; }
 .mobile-nav-brand .logo-text strong { font-size: .95rem; max-width: 48vw; }
 .mobile-nav-close {
   width: 44px; height: 44px; min-width: 44px; border-radius: 10px;
@@ -880,12 +880,46 @@ body.nav-open { overflow: hidden; touch-action: none; }
 }
 .db-warn { color: var(--color-naranjo); }
 
-.legal-content { max-width: 720px; color: var(--text-secondary); }
+.legal-content { max-width: 760px; color: var(--text-secondary); line-height: 1.65; }
 .legal-content h2 {
-  color: var(--fg); font-family: var(--font-display); margin: 1.5rem 0 .75rem;
+  color: var(--fg); font-family: var(--font-display); margin: 1.75rem 0 .75rem;
   text-transform: uppercase;
+  letter-spacing: .03em;
+  font-size: 1.05rem;
 }
 .legal-content p { margin-bottom: 1rem; }
+.legal-lead {
+  font-size: 1.05rem;
+  color: var(--fg);
+  margin-bottom: 1.35rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.form-box--contact { max-width: 560px; }
+.consent-check {
+  display: flex;
+  gap: .65rem;
+  align-items: flex-start;
+  font-size: .88rem;
+  color: var(--text-secondary);
+  margin: 1rem 0 1.1rem;
+  line-height: 1.45;
+}
+.consent-check input {
+  margin-top: .25rem;
+  width: auto;
+  flex-shrink: 0;
+}
+.form-box select {
+  width: 100%;
+  margin-bottom: .85rem;
+  padding: .65rem .75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--fg);
+  font: inherit;
+}
 
 .empty-state {
   padding: 2rem; border: 1px dashed var(--border); border-radius: var(--radius);
@@ -953,16 +987,22 @@ body.nav-open { overflow: hidden; touch-action: none; }
 .skip-link:focus { left: .5rem; top: .5rem; }
 
 .logo-img {
-  width: 44px; height: 44px; border-radius: 12px; object-fit: contain;
-  box-shadow: 0 0 0 1px rgba(235,124,43,.35), 0 8px 20px rgba(235,124,43,.2);
+  width: 44px; height: 44px; border-radius: 0; object-fit: contain;
+  box-shadow: none;
   flex-shrink: 0;
   background: transparent;
 }
+/* Mismo recorte de “escudo” con copete circular (como el naranja): sin forzar square CSS */
 .logo-img--static {
+  width: 44px;
+  height: 44px;
   object-fit: contain;
-  border-radius: 10px;
-  background: #c8102e;
-  box-shadow: 0 0 0 1px rgba(200, 16, 46, 0.35), 0 6px 16px rgba(0,0,0,.12);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  box-sizing: border-box;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
 }
 /* Header: swap Fútbol Joven (naranja) ↔ Futbolistas Chilenos (rojo) cada 5s */
 .logo-swap {
@@ -979,11 +1019,16 @@ body.nav-open { overflow: hidden; touch-action: none; }
   width: 100%;
   height: 100%;
   margin: 0;
+  padding: 0;
   opacity: 0;
   transform: scale(0.92) rotate(-4deg);
   transition: opacity .65s ease, transform .65s cubic-bezier(.22, 1, .36, 1), filter .65s ease;
   pointer-events: none;
   object-fit: contain;
+  box-sizing: border-box;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 .logo-swap .logo-img.is-active {
   opacity: 1;
@@ -991,17 +1036,14 @@ body.nav-open { overflow: hidden; touch-action: none; }
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
   z-index: 1;
 }
-.logo-swap .logo-img--fj {
-  border-radius: 12px;
+.logo-swap .logo-img--fj,
+.logo-swap .logo-img--fc {
+  border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
-.logo-swap .logo-img--fc {
-  border-radius: 10px;
-  background: #e10600;
-  box-shadow: none;
-  padding: 4px;
-  box-sizing: border-box;
+.logo-swap .logo-img--fc.is-active {
+  transform: scale(1) rotate(0deg);
 }
 .logo-mark { display: none; }
 .footer-family {
@@ -1159,14 +1201,23 @@ img[src*="/assets/escudos/"] {
   .sec-chip .sec-full-inline { display: none; }
 }
 
-/* Filas que clasifican (tablas) */
+/* Filas que clasifican (todas las categorías): verde */
+:root {
+  --color-clasifica: #2ecc71;
+  --color-clasifica-bg: rgba(46, 204, 113, 0.12);
+  --color-clasifica-border: rgba(46, 204, 113, 0.45);
+}
 .table-row--clasifica td {
-  background: rgba(235, 124, 43, 0.1);
+  background: var(--color-clasifica-bg);
+  box-shadow: inset 3px 0 0 var(--color-clasifica);
 }
 .table-row--clasifica .col-pos,
-.badge-clasifica {
-  color: var(--color-naranjo);
+.table-row--clasifica .pos-badge {
+  color: var(--color-clasifica);
   font-weight: 700;
+}
+.table-row--clasifica .pos-badge {
+  background: rgba(46, 204, 113, 0.18);
 }
 .badge-clasifica {
   display: inline-block;
@@ -1175,19 +1226,26 @@ img[src*="/assets/escudos/"] {
   text-transform: uppercase;
   padding: .15rem .45rem;
   border-radius: 999px;
-  border: 1px solid rgba(235, 124, 43, 0.45);
-  background: rgba(235, 124, 43, 0.12);
+  border: 1px solid var(--color-clasifica-border);
+  background: var(--color-clasifica-bg);
+  color: var(--color-clasifica);
+  font-weight: 700;
   margin-left: .35rem;
   vertical-align: middle;
 }
+/* Legacy: mismo verde (Sub-11/12 y cualquier uso de lider-grupo) */
 .table-row--lider-grupo td {
-  background: rgba(225, 6, 0, 0.08);
-  box-shadow: inset 3px 0 0 #e10600;
+  background: var(--color-clasifica-bg);
+  box-shadow: inset 3px 0 0 var(--color-clasifica);
+}
+.table-row--lider-grupo .col-pos,
+.table-row--lider-grupo .pos-badge,
+.table-row--lider-grupo .badge-clasifica {
+  color: var(--color-clasifica);
 }
 .table-row--lider-grupo .badge-clasifica {
-  color: #e10600;
-  border-color: rgba(225, 6, 0, 0.4);
-  background: rgba(225, 6, 0, 0.1);
+  border-color: var(--color-clasifica-border);
+  background: var(--color-clasifica-bg);
 }
 .reglas-torneo {
   font-size: .9rem;
@@ -1199,6 +1257,256 @@ img[src*="/assets/escudos/"] {
   background: var(--card);
 }
 .reglas-torneo strong { color: var(--fg); }
+
+.col-prom { font-variant-numeric: tabular-nums; }
+
+/* Barra de filtros anclada al hacer scroll (bajo el header) */
+.subnav-sticky {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 40;
+  margin: 0 0 1.1rem;
+  padding: .65rem 0 .7rem;
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.subnav-sticky .cat-tools {
+  margin-bottom: .55rem;
+}
+.subnav-sticky .cat-pills,
+.subnav-sticky .chip-row--prog {
+  margin-bottom: .55rem;
+}
+.subnav-sticky .grupo-jump {
+  margin-bottom: 0;
+}
+.subnav-sticky .fecha-nav {
+  margin-bottom: .55rem;
+}
+.subnav-sticky .fecha-pills {
+  margin-bottom: 0;
+}
+.cat-pills--scroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding-bottom: .15rem;
+  max-width: 100%;
+}
+.cat-pills--scroll .pill,
+.cat-pills--scroll .chip,
+.cat-pills--scroll .fecha-pill {
+  flex-shrink: 0;
+}
+
+/* Navegación misma categoría: Goleadores | Posiciones | Programación */
+.cat-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 0 0 1rem;
+}
+.cat-tool {
+  display: inline-flex;
+  align-items: center;
+  padding: .4rem .9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  font-weight: 600;
+  font-size: .85rem;
+  text-decoration: none;
+}
+.cat-tool:hover {
+  border-color: var(--color-naranjo);
+  color: var(--color-naranjo);
+}
+.cat-tool.is-active {
+  background: var(--color-naranjo);
+  border-color: var(--color-naranjo);
+  color: #fff;
+}
+
+/* Saltos a grupos (Regional / Infantil) */
+.grupo-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 0 0 1rem;
+}
+.grupo-jump-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .4rem .75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  text-decoration: none;
+  font-size: .85rem;
+  scroll-margin-top: 5.5rem;
+}
+.grupo-jump-btn strong {
+  color: var(--color-naranjo);
+  font-size: .78rem;
+  letter-spacing: .04em;
+}
+.grupo-jump-btn:hover {
+  border-color: var(--color-naranjo);
+}
+.grupo-jump-btn.is-active {
+  border-color: var(--color-naranjo);
+  background: rgba(235, 124, 43, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(235, 124, 43, 0.25);
+}
+.standings-block {
+  scroll-margin-top: 5.5rem;
+}
+
+/* Programación: divisiones + fechas */
+.div-tabs {
+  display: flex;
+  gap: .35rem;
+  margin: 0 0 .85rem;
+  flex-wrap: wrap;
+}
+.div-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: .5rem 1.05rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  font-weight: 700;
+  font-size: .9rem;
+  text-decoration: none;
+}
+.div-tab:hover { border-color: var(--color-naranjo); color: var(--color-naranjo); }
+.div-tab.is-active {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+.chip-row--prog { margin-bottom: 1rem; }
+
+.fecha-nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .75rem;
+  margin: 0 0 .85rem;
+  padding: .85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.fecha-nav-current {
+  text-align: center;
+  min-width: 0;
+}
+.fecha-nav-current strong {
+  display: block;
+  font-size: 1.05rem;
+}
+.fecha-nav-meta {
+  display: block;
+  font-size: .78rem;
+  color: var(--text-secondary);
+  margin-top: .15rem;
+}
+.fecha-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .4rem .75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  font-weight: 600;
+  font-size: .85rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.fecha-nav-btn:hover {
+  border-color: var(--color-naranjo);
+  color: var(--color-naranjo);
+}
+.fecha-nav-btn.is-disabled {
+  opacity: .35;
+  pointer-events: none;
+}
+.fecha-pills {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.1rem;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: .15rem;
+}
+.fecha-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 3.4rem;
+  padding: .4rem .55rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  text-decoration: none;
+  font-size: .72rem;
+  line-height: 1.2;
+}
+.fecha-pill-n {
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: var(--color-naranjo);
+}
+.fecha-pill-d { color: var(--text-secondary); }
+.fecha-pill.is-active {
+  border-color: var(--color-naranjo);
+  background: rgba(235, 124, 43, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(235, 124, 43, 0.25);
+}
+.fecha-pill.is-empty {
+  opacity: .72;
+  border-style: dashed;
+}
+.fecha-pill.is-empty .fecha-pill-n { color: var(--text-secondary); }
+.prog-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 1.25rem 1rem !important;
+  font-size: .92rem;
+}
+.player-name-link,
+.player-name {
+  color: inherit;
+  text-decoration: none;
+}
+.player-name-link:hover { color: var(--color-naranjo); }
+
+@media (max-width: 560px) {
+  .fecha-nav {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "cur cur"
+      "prev next";
+  }
+  .fecha-nav-current { grid-area: cur; margin-bottom: .25rem; }
+  .fecha-nav-btn:first-child { grid-area: prev; justify-self: start; }
+  .fecha-nav-btn:last-child { grid-area: next; justify-self: end; }
+}
 
 /* Social footer/mobile: centrados */
 .footer-social {
@@ -1352,6 +1660,13 @@ img[src*="/assets/escudos/"] {
 .section-tight { padding-top: 0; }
 
 .cat-pills { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: 1.25rem; }
+/* top-3 naranja solo si no hay clasificados en verde en la fila */
+.table-row--clasifica.row-top .pos-badge,
+tr.table-row--clasifica .pos-badge {
+  background: rgba(46, 204, 113, 0.18);
+  color: var(--color-clasifica, #2ecc71);
+  box-shadow: none;
+}
 .pill {
   padding: .4rem .85rem; border-radius: 999px; border: 1px solid var(--border);
   font-size: .78rem; font-weight: 600; color: var(--muted); transition: .15s;
@@ -1463,9 +1778,8 @@ html[data-theme="dark"] .neg-dg, :root:not([data-theme="light"]) .neg-dg { color
 .news-card-meta { margin-top: .65rem; font-size: .75rem; color: var(--meta); }
 
 /* Legal */
-.legal-updated { font-size: .88rem; color: var(--muted); margin-bottom: 1.5rem; }
 .legal-list { margin: 0 0 1rem 1.15rem; color: var(--text-secondary); }
-.legal-list li { margin-bottom: .45rem; }
+.legal-list li { margin-bottom: .55rem; }
 .legal-table { min-width: 520px; }
 .legal-content code {
   font-size: .85em; background: var(--card); padding: .1rem .35rem; border-radius: 4px;

@@ -6,6 +6,29 @@ function env(string $key, ?string $default = null): ?string
     return $_ENV[$key] ?? $default;
 }
 
+/** Correo público de contacto (familia Futbolistas Chilenos). */
+function contact_email(): string
+{
+    $email = trim((string) (env('CONTACT_EMAIL') ?? ''));
+    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return $email;
+    }
+    // Cuenta corporativa FCH (API Gmail / recepción de formularios)
+    return 'futbolistaschilenoscorfo@gmail.com';
+}
+
+/** Nombre del responsable legal / marca matriz. */
+function legal_entity_name(): string
+{
+    return 'Futbolistas Chilenos';
+}
+
+/** Nombre comercial del medio (producto de la familia). */
+function media_brand_name(): string
+{
+    return 'Chilenos Proyección';
+}
+
 function app_url(string $path = ''): string
 {
     $base = rtrim(env('APP_URL', 'http://localhost:8010') ?? '', '/');
@@ -439,35 +462,38 @@ function planteles_infantil_sub13_14(): array
 
 /**
  * Reglas de clasificación por tipo de torneo.
- * @return array{tipo:string,cupos:int,descripcion:string,estilo:string}
+ * @return array{tipo:string,cupos:int,descripcion:string,estilo:string,badge:string}
  */
 function reglas_clasificacion(string $categoriaSlug): array
 {
-    // Nacional (4 categorías): top 8
+    // Nacional (Sub-20 → Sub-15): top 8 a playoff
     if (in_array($categoriaSlug, ['sub-20', 'sub-18', 'sub-16', 'sub-15'], true)) {
         return [
             'tipo' => 'nacional',
             'cupos' => 8,
-            'descripcion' => 'Clasifican los 8 primeros de la tabla (puestos 1° al 8°).',
+            'descripcion' => 'Los 8 primeros de la tabla clasifican a playoff. Los 8 restantes no clasifican.',
             'estilo' => 'clasifica', // naranja
+            'badge' => 'Playoff',
         ];
     }
-    // Regional
+    // Regional: 2 grupos; top 2 de cada grupo a playoff
     if (str_contains($categoriaSlug, 'regional')) {
         return [
             'tipo' => 'regional',
-            'cupos' => 0,
-            'descripcion' => 'Campeonato Regional — Zona Centro Norte y Zona Centro Sur.',
+            'cupos' => 2,
+            'descripcion' => 'Grupo Centro Norte y Grupo Centro Sur. Clasifican a playoff los 2 primeros de cada grupo.',
             'estilo' => 'clasifica',
+            'badge' => 'Playoff',
         ];
     }
-    // Sub-11 / Sub-12: 1° de cada grupo
+    // Sub-11 / Sub-12: 1° de cada grupo (highlight verde, igual que el resto)
     if (in_array($categoriaSlug, ['sub-11-infantil', 'sub-12-infantil'], true)) {
         return [
             'tipo' => 'infantil_11_12',
             'cupos' => 1,
             'descripcion' => 'Solo clasifica el 1° lugar de cada grupo (Grupo 1 y Grupo 2).',
-            'estilo' => 'lider-grupo', // rojo / distintivo
+            'estilo' => 'clasifica',
+            'badge' => 'Clasifica',
         ];
     }
     // Sub-13 / Sub-14: grupos Norte / Centro 1 / Centro 2 / Sur
@@ -475,8 +501,9 @@ function reglas_clasificacion(string $categoriaSlug): array
         return [
             'tipo' => 'infantil_13_14',
             'cupos' => 0,
-            'descripcion' => 'Grupos: Norte, Centro 1, Centro 2 y Sur.',
+            'descripcion' => 'Grupos: Norte, Centro 1, Centro 2 y Sur. (Criterio de clasificación según reglamento de la categoría.)',
             'estilo' => 'clasifica',
+            'badge' => 'Clasifica',
         ];
     }
     return [
@@ -484,17 +511,23 @@ function reglas_clasificacion(string $categoriaSlug): array
         'cupos' => 0,
         'descripcion' => '',
         'estilo' => 'clasifica',
+        'badge' => 'Clasifica',
     ];
 }
 
 /**
  * ¿La fila de tabla clasifica? (1-based position within its group/table).
+ * Nacional: 1–8. Regional: 1–2 por grupo. Infantil 11/12: solo 1°.
  */
 function fila_clasifica(string $categoriaSlug, int $posicion, ?string $grupo = null): bool
 {
     $reglas = reglas_clasificacion($categoriaSlug);
     if ($reglas['tipo'] === 'nacional') {
-        return $posicion >= 1 && $posicion <= 8;
+        return $posicion >= 1 && $posicion <= (int) $reglas['cupos'];
+    }
+    if ($reglas['tipo'] === 'regional') {
+        // Top 2 de cada grupo (Centro Norte / Centro Sur)
+        return $posicion >= 1 && $posicion <= (int) $reglas['cupos'];
     }
     if ($reglas['tipo'] === 'infantil_11_12') {
         return $posicion === 1; // solo el líder del grupo
@@ -557,21 +590,21 @@ function categoria_secciones(string $slug): array
     $slug = strtolower(trim($slug));
     $p = planteles_oficiales();
 
-    // Regional: dos zonas (Centro Norte / Centro Sur)
+    // Regional: dos grupos (Centro Norte / Centro Sur)
     if (str_contains($slug, 'regional')) {
         $zn = $p['regional_zonas']['centro_norte'] ?? [];
         $zs = $p['regional_zonas']['centro_sur'] ?? [];
         return [
             [
                 'key' => 'centro_norte',
-                'label' => 'Zona Centro Norte',
+                'label' => 'Grupo Centro Norte',
                 'corto' => 'Centro Norte',
                 'iniciales' => 'CN',
                 'equipos' => $zn,
             ],
             [
                 'key' => 'centro_sur',
-                'label' => 'Zona Centro Sur',
+                'label' => 'Grupo Centro Sur',
                 'corto' => 'Centro Sur',
                 'iniciales' => 'CS',
                 'equipos' => $zs,
@@ -674,6 +707,128 @@ function posiciones_demo_desde_equipos(array $equipos, string $torneoLabel): arr
 }
 
 /**
+ * Ordena filas de posiciones por promedio de puntos (pts/pj).
+ * @param list<array<string,mixed>> $filas
+ * @return list<array<string,mixed>>
+ */
+function ordenar_por_promedio(array $filas): array
+{
+    usort($filas, static function (array $a, array $b): int {
+        $pjA = max(0, (int) ($a['pj'] ?? 0));
+        $pjB = max(0, (int) ($b['pj'] ?? 0));
+        $promA = $pjA > 0 ? ((int) ($a['pts'] ?? 0)) / $pjA : 0.0;
+        $promB = $pjB > 0 ? ((int) ($b['pts'] ?? 0)) / $pjB : 0.0;
+        if ($promA !== $promB) {
+            return $promB <=> $promA;
+        }
+        $pts = ((int) ($b['pts'] ?? 0)) <=> ((int) ($a['pts'] ?? 0));
+        if ($pts !== 0) {
+            return $pts;
+        }
+        $dg = ((int) ($b['dg'] ?? 0)) <=> ((int) ($a['dg'] ?? 0));
+        if ($dg !== 0) {
+            return $dg;
+        }
+        return ((int) ($b['gf'] ?? 0)) <=> ((int) ($a['gf'] ?? 0));
+    });
+    return $filas;
+}
+
+/**
+ * Fecha en formato chileno día/mes/año (dd/mm/yyyy).
+ */
+function format_fecha_cl(?string $fecha, bool $conHora = false): string
+{
+    $fecha = trim((string) $fecha);
+    if ($fecha === '') {
+        return '';
+    }
+    try {
+        // Acepta Y-m-d, Y-m-d H:i:s, d/m/Y
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}/', $fecha)) {
+            $dt = DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $fecha)
+                ?: DateTimeImmutable::createFromFormat('d/m/Y', substr($fecha, 0, 10));
+        } else {
+            $dt = new DateTimeImmutable($fecha);
+        }
+        if (!$dt) {
+            return $fecha;
+        }
+        return $conHora ? $dt->format('d/m/Y H:i') : $dt->format('d/m/Y');
+    } catch (Throwable $e) {
+        return $fecha;
+    }
+}
+
+/**
+ * ¿El club pertenece a la lista de equipos de un grupo/zona?
+ * Compara por slug y por nombre normalizado.
+ */
+function club_en_equipos(string $clubNombre, string $clubSlug, array $equipos): bool
+{
+    $slug = strtolower(trim($clubSlug));
+    if ($slug === '' && $clubNombre !== '') {
+        $slug = slugify($clubNombre);
+    }
+    $nameKey = slugify($clubNombre);
+    foreach ($equipos as $eq) {
+        $eqName = (string) $eq;
+        $eqSlug = slugify($eqName);
+        if ($slug !== '' && $slug === $eqSlug) {
+            return true;
+        }
+        if ($nameKey !== '' && $nameKey === $eqSlug) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Key de sección (zona/grupo) a la que pertenece un club en una categoría, o ''.
+ */
+function club_seccion_key(string $categoriaSlug, string $clubNombre, string $clubSlug = ''): string
+{
+    foreach (categoria_secciones($categoriaSlug) as $sec) {
+        if (($sec['key'] ?? 'unica') === 'unica') {
+            continue;
+        }
+        if (club_en_equipos($clubNombre, $clubSlug, $sec['equipos'] ?? [])) {
+            return (string) $sec['key'];
+        }
+    }
+    return '';
+}
+
+/**
+ * Navegación cruzada entre Goleadores / Posiciones / Programación de la misma categoría.
+ * @param 'goleadores'|'posiciones'|'programacion' $activa
+ */
+function nav_misma_categoria(string $categoriaSlug, string $activa): string
+{
+    $slug = strtolower(trim($categoriaSlug));
+    if ($slug === '') {
+        $slug = 'sub-20';
+    }
+    $items = [
+        'goleadores' => ['label' => 'Goleadores', 'href' => app_url('/goleadores/' . $slug)],
+        'posiciones' => ['label' => 'Posiciones', 'href' => app_url('/posiciones/' . $slug)],
+        'programacion' => ['label' => 'Programación', 'href' => app_url('/programacion/' . $slug)],
+    ];
+    // Goleadores no tiene sub-13 infantil
+    if ($slug === 'sub-13-infantil') {
+        unset($items['goleadores']);
+    }
+    $html = '<nav class="cat-tools" aria-label="Misma categoría">';
+    foreach ($items as $key => $it) {
+        $cls = $key === $activa ? 'cat-tool is-active' : 'cat-tool';
+        $html .= '<a class="' . e($cls) . '" href="' . e($it['href']) . '">' . e($it['label']) . '</a>';
+    }
+    $html .= '</nav>';
+    return $html;
+}
+
+/**
  * Catálogo plano de todas las categorías del menú (para rutas y ficha).
  * @return list<array{slug:string,nombre:string,division:string,descripcion:string}>
  */
@@ -691,7 +846,7 @@ function categorias_catalogo(): array
                 $desc = 'Campeonato Nacional — ' . $nombreCorto . '. Clasifican los 8 primeros. Noticias, goleadores y tablas.';
             } elseif ($key === 'regional') {
                 $nombre = $nombreCorto . ' Regional';
-                $desc = 'Campeonato Regional — ' . $nombreCorto . ' (Zona Centro Norte y Zona Centro Sur).';
+                $desc = 'Campeonato Regional — ' . $nombreCorto . '. Grupo Centro Norte y Grupo Centro Sur. Clasifican a playoff los 2 primeros de cada grupo.';
             } else {
                 $nombre = $nombreCorto . ' Infantil';
                 $desc = 'Campeonato Infantil — ' . $nombreCorto . '. Grupos según categoría (Norte/C1/C2/Sur o G1/G2).';

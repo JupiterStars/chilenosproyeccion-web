@@ -51,9 +51,13 @@ final class GoleadorModel
         $data = self::loadAnfp();
         $key = self::normalizeSlug($slug);
         if ($key && isset($data[$key])) {
+            // No exponer fuente/COMET en UI pública
+            $torneo = (string) ($data[$key]['torneo'] ?? '');
+            $torneo = preg_replace('/\s*[·•]\s*ANFP.*$/iu', '', $torneo) ?? $torneo;
+            $torneo = preg_replace('/\bCOMET\b/iu', '', $torneo) ?? $torneo;
             return [
-                'torneo' => $data[$key]['torneo'] ?? '',
-                'fuente' => $data[$key]['fuente'] ?? 'ANFP',
+                'torneo' => trim($torneo),
+                'fuente' => '',
             ];
         }
         return ['torneo' => 'Goleadores ' . strtoupper($slug), 'fuente' => ''];
