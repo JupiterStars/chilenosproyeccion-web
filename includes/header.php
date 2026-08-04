@@ -216,14 +216,14 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
   <nav class="mobile-nav" id="mobile-nav" data-mobile-nav aria-label="Menú" hidden>
     <div class="mobile-nav-panel">
       <div class="mobile-nav-top">
-        <div class="mobile-nav-brand">
+        <div class="mobile-nav-brand" data-logo-brand>
           <span class="logo-swap logo-swap--sm" aria-hidden="true">
             <img class="logo-img logo-img--fj is-active" src="<?= e($logoFj) ?>" width="36" height="36" alt="" decoding="async" />
             <img class="logo-img logo-img--fc" src="<?= e($logoFc) ?>" width="36" height="36" alt="" decoding="async" />
           </span>
           <div class="logo-text">
-            <strong>Chilenos Proyección</strong>
-            <span>Menú</span>
+            <strong data-logo-title>Chilenos Proyección</strong>
+            <span data-logo-tagline class="logo-tagline">Fútbol joven</span>
           </div>
         </div>
         <button type="button" data-menu-close class="mobile-nav-close" aria-label="Cerrar menú">
