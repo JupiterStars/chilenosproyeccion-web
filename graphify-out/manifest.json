@@ -1,0 +1,212 @@
+{
+  "admin/index.php": {
+    "mtime": 1785641257.5506094,
+    "ast_hash": "5e9e1d963fcb75d2fa86261827c91979",
+    "semantic_hash": "5e9e1d963fcb75d2fa86261827c91979"
+  },
+  "admin/login.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "ce8e2730c3781fcce183dc827de38e94",
+    "semantic_hash": "ce8e2730c3781fcce183dc827de38e94"
+  },
+  "api/noticias.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "fa17c224d1cd1d72dfa3b4c0b7a50d1b",
+    "semantic_hash": "fa17c224d1cd1d72dfa3b4c0b7a50d1b"
+  },
+  "includes/Database.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "64f5ac493dba40d60763e8389829156d",
+    "semantic_hash": "64f5ac493dba40d60763e8389829156d"
+  },
+  "includes/bootstrap.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "919ecc120c111b1ebb2900d064363b7d",
+    "semantic_hash": "919ecc120c111b1ebb2900d064363b7d"
+  },
+  "includes/footer.php": {
+    "mtime": 1785641094.6038213,
+    "ast_hash": "5493a5a69585f7b6e30693e716e19bd0",
+    "semantic_hash": "5493a5a69585f7b6e30693e716e19bd0"
+  },
+  "includes/header.php": {
+    "mtime": 1785642217.4523985,
+    "ast_hash": "6da4a97dda9e77e03abefe5c7944af62",
+    "semantic_hash": "6da4a97dda9e77e03abefe5c7944af62"
+  },
+  "includes/helpers.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "651a6bcfb1572f13aede032e652a65b3",
+    "semantic_hash": "651a6bcfb1572f13aede032e652a65b3"
+  },
+  "includes/models/CategoriaModel.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "a676fb3c82cfb780db64cbc5b0ed71cf",
+    "semantic_hash": "a676fb3c82cfb780db64cbc5b0ed71cf"
+  },
+  "includes/models/ClubModel.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "0d2cc54abd00fcc7df91fc812f5b1d36",
+    "semantic_hash": "0d2cc54abd00fcc7df91fc812f5b1d36"
+  },
+  "includes/models/GoleadorModel.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "e37fb6c4358ef3adb046798c5565ff1c",
+    "semantic_hash": "e37fb6c4358ef3adb046798c5565ff1c"
+  },
+  "includes/models/JugadorModel.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "69a88b6fde410a6735e66e496629b466",
+    "semantic_hash": "69a88b6fde410a6735e66e496629b466"
+  },
+  "includes/models/NoticiaModel.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "d8d18736bc54b48ceb0f3f73d81769f4",
+    "semantic_hash": "d8d18736bc54b48ceb0f3f73d81769f4"
+  },
+  "includes/models/PosicionModel.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "312bb82b1927a2149d552311d6414cc5",
+    "semantic_hash": "312bb82b1927a2149d552311d6414cc5"
+  },
+  "includes/models/ProgramacionModel.php": {
+    "mtime": 1785640987.2928529,
+    "ast_hash": "048481d049a165fa2e3df7181ff907fd",
+    "semantic_hash": "048481d049a165fa2e3df7181ff907fd"
+  },
+  "includes/models/SuscriptorModel.php": {
+    "mtime": 1785640987.293447,
+    "ast_hash": "73bdda01404c12035285864238fec02d",
+    "semantic_hash": "73bdda01404c12035285864238fec02d"
+  },
+  "includes/models/TagModel.php": {
+    "mtime": 1785640987.293447,
+    "ast_hash": "f540ae2dad1b588de421bc152a42a1c1",
+    "semantic_hash": "f540ae2dad1b588de421bc152a42a1c1"
+  },
+  "includes/partials/ad-slot.php": {
+    "mtime": 1785641094.6038213,
+    "ast_hash": "e7b4318c410d39b5661b8163c8f589a2",
+    "semantic_hash": "e7b4318c410d39b5661b8163c8f589a2"
+  },
+  "includes/partials/news-card.php": {
+    "mtime": 1785641094.6038213,
+    "ast_hash": "0ffec2fc6aba2db3893b0da3f929682c",
+    "semantic_hash": "0ffec2fc6aba2db3893b0da3f929682c"
+  },
+  "public/404.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "a58fb21bdf1e4fca6880112bb3a84865",
+    "semantic_hash": "a58fb21bdf1e4fca6880112bb3a84865"
+  },
+  "public/buscador.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "76465e7701e1b1b8e3a2110f85186cd3",
+    "semantic_hash": "76465e7701e1b1b8e3a2110f85186cd3"
+  },
+  "public/categoria.php": {
+    "mtime": 1785641165.4926426,
+    "ast_hash": "4862e97ccc40c4d63f4b21e029e7585a",
+    "semantic_hash": "4862e97ccc40c4d63f4b21e029e7585a"
+  },
+  "public/club.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "1bc7b9a090fa4785fccd79538c164c6b",
+    "semantic_hash": "1bc7b9a090fa4785fccd79538c164c6b"
+  },
+  "public/contacto.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "0ce9c60e1077731c5311854b88c2d2b5",
+    "semantic_hash": "0ce9c60e1077731c5311854b88c2d2b5"
+  },
+  "public/feed.php": {
+    "mtime": 1785641257.5506094,
+    "ast_hash": "f8f53d32a1044e434087752ac0cebf99",
+    "semantic_hash": "f8f53d32a1044e434087752ac0cebf99"
+  },
+  "public/futbol-joven.php": {
+    "mtime": 1785641165.4926426,
+    "ast_hash": "f369cd696646f1c8011bc1a681b538b7",
+    "semantic_hash": "f369cd696646f1c8011bc1a681b538b7"
+  },
+  "public/goleadores.php": {
+    "mtime": 1785642217.638567,
+    "ast_hash": "c7c69ab874d39c3162178118e0581a4e",
+    "semantic_hash": "c7c69ab874d39c3162178118e0581a4e"
+  },
+  "public/index.php": {
+    "mtime": 1785642217.7503417,
+    "ast_hash": "e574411eb6eb6bf3f180a119c173bbf0",
+    "semantic_hash": "e574411eb6eb6bf3f180a119c173bbf0"
+  },
+  "public/js/main.js": {
+    "mtime": 1785642217.4523985,
+    "ast_hash": "e8763028972f4e2090f90daf1d30d5f0",
+    "semantic_hash": "e8763028972f4e2090f90daf1d30d5f0"
+  },
+  "public/jugador.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "937cf4671cd908148d474dd013d34b6b",
+    "semantic_hash": "937cf4671cd908148d474dd013d34b6b"
+  },
+  "public/legales.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "21f4282eca170852afbfa23aa05655ff",
+    "semantic_hash": "21f4282eca170852afbfa23aa05655ff"
+  },
+  "public/newsletter.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "7e444aa3cfc23deada436db1b0c9e77e",
+    "semantic_hash": "7e444aa3cfc23deada436db1b0c9e77e"
+  },
+  "public/noticia.php": {
+    "mtime": 1785641165.4926426,
+    "ast_hash": "79815745c1668e5d769e4f0dcf92b5aa",
+    "semantic_hash": "79815745c1668e5d769e4f0dcf92b5aa"
+  },
+  "public/posiciones.php": {
+    "mtime": 1785642217.6421375,
+    "ast_hash": "5140bb29f1920207c1c821118c165841",
+    "semantic_hash": "5140bb29f1920207c1c821118c165841"
+  },
+  "public/programacion.php": {
+    "mtime": 1785642217.6453078,
+    "ast_hash": "a2f1e27cdab4bbefeff696e9db824335",
+    "semantic_hash": "a2f1e27cdab4bbefeff696e9db824335"
+  },
+  "public/quienes-somos.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "105c7ee782f0f0cdb5ac8be625c8b351",
+    "semantic_hash": "105c7ee782f0f0cdb5ac8be625c8b351"
+  },
+  "public/robots.php": {
+    "mtime": 1785641257.5506094,
+    "ast_hash": "35d5293b45713d81dbf9d320662aabcc",
+    "semantic_hash": "35d5293b45713d81dbf9d320662aabcc"
+  },
+  "public/router.php": {
+    "mtime": 1785641165.4926426,
+    "ast_hash": "3343c34eccc587de5900a99fe51c333d",
+    "semantic_hash": "3343c34eccc587de5900a99fe51c333d"
+  },
+  "public/sitemap.php": {
+    "mtime": 1785641257.5506094,
+    "ast_hash": "54d44edc6ffdcdecc44ff74c2ea3815b",
+    "semantic_hash": "54d44edc6ffdcdecc44ff74c2ea3815b"
+  },
+  "public/tema.php": {
+    "mtime": 1785641257.5496094,
+    "ast_hash": "81e0147d415aefa6a2d3a7203d844577",
+    "semantic_hash": "81e0147d415aefa6a2d3a7203d844577"
+  },
+  "sql/schema.sql": {
+    "mtime": 1785640909.4701726,
+    "ast_hash": "bc109f5a177b402eaa18805c57ffd087",
+    "semantic_hash": "bc109f5a177b402eaa18805c57ffd087"
+  },
+  "sql/seed.sql": {
+    "mtime": 1785640909.4713259,
+    "ast_hash": "ac43a81899f25c5356f016c511caba9b",
+    "semantic_hash": "ac43a81899f25c5356f016c511caba9b"
+  }
+}

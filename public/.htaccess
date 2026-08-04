@@ -1,0 +1,51 @@
+# ChilenosProyección — URLs amigables (Apache / HostGator)
+RewriteEngine On
+RewriteBase /
+
+# Estáticos reales
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Home
+RewriteRule ^$ index.php [L,QSA]
+
+# Fútbol joven (Nacional + Regional + Infantil)
+RewriteRule ^futbol-joven/?$ futbol-joven.php [L,QSA]
+RewriteRule ^futbol-joven/(sub-20|sub-18|sub-16|sub-15|sub-13|sub-20-regional|sub-18-regional|sub-16-regional|sub-15-regional|sub-14-infantil|sub-13-infantil|sub-12-infantil|sub-11-infantil)/?$ categoria.php?cat=$1 [L,QSA]
+RewriteRule ^futbol-joven/(sub-20|sub-18|sub-16|sub-15|sub-13|sub-20-regional|sub-18-regional|sub-16-regional|sub-15-regional|sub-14-infantil|sub-13-infantil|sub-12-infantil|sub-11-infantil)/pagina/([0-9]+)/?$ categoria.php?cat=$1&pagina=$2 [L,QSA]
+
+# Contenido
+RewriteRule ^noticia/([a-z0-9\-]+)/?$ noticia.php?slug=$1 [L,QSA]
+RewriteRule ^goleadores/?$ goleadores.php [L,QSA]
+RewriteRule ^goleadores/([a-z0-9\-]+)/?$ goleadores.php?categoria=$1 [L,QSA]
+RewriteRule ^posiciones/?$ posiciones.php [L,QSA]
+RewriteRule ^posiciones/([a-z0-9\-]+)/?$ posiciones.php?categoria=$1 [L,QSA]
+RewriteRule ^programacion/?$ programacion.php [L,QSA]
+RewriteRule ^programacion/([a-z0-9\-]+)/?$ programacion.php?categoria=$1 [L,QSA]
+RewriteRule ^club/([a-z0-9\-]+)/?$ club.php?slug=$1 [L,QSA]
+RewriteRule ^jugador/([a-z0-9\-]+)/?$ jugador.php?slug=$1 [L,QSA]
+RewriteRule ^tema/([a-z0-9\-]+)/?$ tema.php?slug=$1 [L,QSA]
+
+# Sitio
+RewriteRule ^buscador/?$ buscador.php [L,QSA]
+RewriteRule ^newsletter/?$ newsletter.php [L,QSA]
+RewriteRule ^contacto/?$ contacto.php [L,QSA]
+RewriteRule ^quienes-somos/?$ quienes-somos.php [L,QSA]
+RewriteRule ^legales/(politica-privacidad|terminos-y-condiciones|politica-cookies|politica-editorial|aviso-legal|propiedad-intelectual|contacto-legal)/?$ legales.php?doc=$1 [L,QSA]
+RewriteRule ^entrevistas/?$ entrevistas.php [L,QSA]
+RewriteRule ^entrevista/([a-z0-9\-]+)/?$ entrevista.php?slug=$1 [L,QSA]
+
+# SEO
+RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+RewriteRule ^robots\.txt$ robots.php [L,QSA]
+
+# Bloquear .env y includes
+RewriteRule (^|/)\.env - [F,L]
+
+# Seguridad básica
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
