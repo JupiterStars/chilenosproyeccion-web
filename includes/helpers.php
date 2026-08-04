@@ -266,6 +266,166 @@ function goleadores_categorias_slugs(): array
 }
 
 /**
+ * Apellido / etiqueta legible de una categoría (para títulos y pills).
+ * @return array{slug:string,nombre:string,apellido:string,titulo:string,corto:string,iniciales:string,division:string}
+ */
+function categoria_etiqueta(string $slug): array
+{
+    $slug = strtolower(trim($slug));
+    $map = [
+        'sub-20' => ['nombre' => 'Sub-20', 'apellido' => 'Nacional', 'iniciales' => 'S20-N', 'division' => 'nacional'],
+        'sub-18' => ['nombre' => 'Sub-18', 'apellido' => 'Nacional', 'iniciales' => 'S18-N', 'division' => 'nacional'],
+        'sub-16' => ['nombre' => 'Sub-16', 'apellido' => 'Nacional', 'iniciales' => 'S16-N', 'division' => 'nacional'],
+        'sub-15' => ['nombre' => 'Sub-15', 'apellido' => 'Nacional', 'iniciales' => 'S15-N', 'division' => 'nacional'],
+        'sub-20-regional' => ['nombre' => 'Sub-20', 'apellido' => 'Regional', 'iniciales' => 'S20-R', 'division' => 'regional'],
+        'sub-18-regional' => ['nombre' => 'Sub-18', 'apellido' => 'Regional', 'iniciales' => 'S18-R', 'division' => 'regional'],
+        'sub-16-regional' => ['nombre' => 'Sub-16', 'apellido' => 'Regional', 'iniciales' => 'S16-R', 'division' => 'regional'],
+        'sub-15-regional' => ['nombre' => 'Sub-15', 'apellido' => 'Regional', 'iniciales' => 'S15-R', 'division' => 'regional'],
+        'sub-14-infantil' => ['nombre' => 'Sub-14', 'apellido' => 'Infantil', 'iniciales' => 'S14-I', 'division' => 'infantil'],
+        'sub-13-infantil' => ['nombre' => 'Sub-13', 'apellido' => 'Infantil', 'iniciales' => 'S13-I', 'division' => 'infantil'],
+        'sub-12-infantil' => ['nombre' => 'Sub-12', 'apellido' => 'Infantil', 'iniciales' => 'S12-I', 'division' => 'infantil'],
+        'sub-11-infantil' => ['nombre' => 'Sub-11', 'apellido' => 'Infantil', 'iniciales' => 'S11-I', 'division' => 'infantil'],
+    ];
+    $m = $map[$slug] ?? ['nombre' => strtoupper($slug), 'apellido' => '', 'iniciales' => strtoupper(substr($slug, 0, 4)), 'division' => 'otro'];
+    $titulo = trim($m['nombre'] . ($m['apellido'] !== '' ? ' ' . $m['apellido'] : ''));
+    $corto = $m['apellido'] !== '' ? ($m['nombre'] . ' ' . mb_substr($m['apellido'], 0, 3) . '.') : $m['nombre'];
+    return [
+        'slug' => $slug,
+        'nombre' => $m['nombre'],
+        'apellido' => $m['apellido'],
+        'titulo' => $titulo,
+        'corto' => $corto,
+        'iniciales' => $m['iniciales'],
+        'division' => $m['division'],
+    ];
+}
+
+/**
+ * Secciones / grupos de una categoría (Regional por zona, Infantil por grupos).
+ * @return list<array{key:string,label:string,corto:string,iniciales:string,equipos:list<string>}>
+ */
+function categoria_secciones(string $slug): array
+{
+    $slug = strtolower(trim($slug));
+    $p = planteles_oficiales();
+
+    // Regional: dos zonas (Centro Norte / Centro Sur)
+    if (str_contains($slug, 'regional')) {
+        $zn = $p['regional_zonas']['centro_norte'] ?? [];
+        $zs = $p['regional_zonas']['centro_sur'] ?? [];
+        return [
+            [
+                'key' => 'centro_norte',
+                'label' => 'Zona Centro Norte',
+                'corto' => 'Centro Norte',
+                'iniciales' => 'CN',
+                'equipos' => $zn,
+            ],
+            [
+                'key' => 'centro_sur',
+                'label' => 'Zona Centro Sur',
+                'corto' => 'Centro Sur',
+                'iniciales' => 'CS',
+                'equipos' => $zs,
+            ],
+        ];
+    }
+
+    // Sub-11 / Sub-12: Grupo 1 y 2
+    if (in_array($slug, ['sub-11-infantil', 'sub-12-infantil'], true)) {
+        $g = $p['infantil_sub11_12'] ?? [];
+        return [
+            [
+                'key' => 'grupo_1',
+                'label' => 'Grupo 1',
+                'corto' => 'Grupo 1',
+                'iniciales' => 'G1',
+                'equipos' => $g['grupo_1'] ?? [],
+            ],
+            [
+                'key' => 'grupo_2',
+                'label' => 'Grupo 2',
+                'corto' => 'Grupo 2',
+                'iniciales' => 'G2',
+                'equipos' => $g['grupo_2'] ?? [],
+            ],
+        ];
+    }
+
+    // Sub-13 / Sub-14: Norte, Centro 1, Centro 2, Sur
+    if (in_array($slug, ['sub-13-infantil', 'sub-14-infantil'], true)) {
+        $g = $p['infantil_sub13_14'] ?? [];
+        $out = [];
+        $labels = [
+            'norte' => ['Grupo Norte', 'Norte', 'N'],
+            'centro_1' => ['Grupo Centro 1', 'Centro 1', 'C1'],
+            'centro_2' => ['Grupo Centro 2', 'Centro 2', 'C2'],
+            'sur' => ['Grupo Sur', 'Sur', 'S'],
+        ];
+        foreach ($labels as $k => $labs) {
+            $out[] = [
+                'key' => $k,
+                'label' => $labs[0],
+                'corto' => $labs[1],
+                'iniciales' => $labs[2],
+                'equipos' => $g[$k] ?? [],
+            ];
+        }
+        return $out;
+    }
+
+    // Nacional: una sola tabla (todos los 16)
+    if (in_array($slug, ['sub-20', 'sub-18', 'sub-16', 'sub-15'], true)) {
+        return [[
+            'key' => 'unica',
+            'label' => 'Tabla general',
+            'corto' => 'General',
+            'iniciales' => 'GEN',
+            'equipos' => $p['nacional'] ?? [],
+        ]];
+    }
+
+    return [];
+}
+
+/**
+ * Construye filas demo de posiciones a partir de una lista de nombres de club.
+ * @param list<string> $equipos
+ * @return list<array<string,mixed>>
+ */
+function posiciones_demo_desde_equipos(array $equipos, string $torneoLabel): array
+{
+    $rows = [];
+    $pts = 30;
+    $i = 0;
+    foreach ($equipos as $nombre) {
+        $slug = slugify($nombre);
+        $pj = 10;
+        $pg = max(0, 8 - $i);
+        $pe = min(3, $i % 3);
+        $pp = max(0, $pj - $pg - $pe);
+        $gf = max(5, 22 - $i * 2);
+        $gc = max(3, 6 + $i);
+        $rows[] = [
+            'club' => $nombre,
+            'club_slug' => $slug,
+            'escudo_url' => club_escudo_url($slug),
+            'pts' => max(0, $pts - $i * 2),
+            'pj' => $pj,
+            'pg' => $pg,
+            'pe' => $pe,
+            'pp' => $pp,
+            'gf' => $gf,
+            'gc' => $gc,
+            'dg' => $gf - $gc,
+            'torneo' => $torneoLabel,
+        ];
+        $i++;
+    }
+    return $rows;
+}
+
+/**
  * Catálogo plano de todas las categorías del menú (para rutas y ficha).
  * @return list<array{slug:string,nombre:string,division:string,descripcion:string}>
  */
@@ -280,13 +440,13 @@ function categorias_catalogo(): array
             $nombre = $nombreCorto;
             if ($key === 'nacional') {
                 $nombre = $nombreCorto . ' Nacional';
-                $desc = 'Campeonato Nacional — categoría ' . $nombreCorto . '. Noticias, goleadores y tablas.';
+                $desc = 'Campeonato Nacional — ' . $nombreCorto . '. Clasifican los 8 primeros. Noticias, goleadores y tablas.';
             } elseif ($key === 'regional') {
                 $nombre = $nombreCorto . ' Regional';
-                $desc = 'Campeonato Regional — categoría ' . $nombreCorto . '. Noticias y seguimiento formativo.';
+                $desc = 'Campeonato Regional — ' . $nombreCorto . ' (Zona Centro Norte y Zona Centro Sur).';
             } else {
                 $nombre = $nombreCorto . ' Infantil';
-                $desc = 'Fútbol Infantil — ' . $nombreCorto . '. Cobertura de formativas menores.';
+                $desc = 'Campeonato Infantil — ' . $nombreCorto . '. Grupos según categoría (Norte/C1/C2/Sur o G1/G2).';
             }
             $out[] = [
                 'slug' => $slug,

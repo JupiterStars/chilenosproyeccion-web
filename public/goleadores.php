@@ -3,10 +3,14 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/bootstrap.php';
 
 $cat = trim($_GET['categoria'] ?? 'sub-20') ?: 'sub-20';
-$filas = GoleadorModel::porCategoria($cat, 10);
+$etiqueta = categoria_etiqueta($cat);
+$filas = GoleadorModel::porCategoria($cat, 15);
 $meta = GoleadorModel::metaCategoria($cat);
-$torneo = $meta['torneo'] !== '' ? $meta['torneo'] : ($filas[0]['torneo'] ?? ('Goleadores ' . strtoupper($cat)));
+$torneo = $meta['torneo'] !== '' ? $meta['torneo'] : ($filas[0]['torneo'] ?? ('Goleadores ' . $etiqueta['titulo']));
 $fuente = $meta['fuente'] ?? '';
+$reglas = reglas_clasificacion($cat);
+$secciones = categoria_secciones($cat);
+
 $showPj = false;
 foreach ($filas as $f) {
     if ((int) ($f['partidos'] ?? 0) > 0) {
@@ -15,7 +19,13 @@ foreach ($filas as $f) {
     }
 }
 
-$pageTitle = 'Goleadores ' . strtoupper($cat) . ' | ChilenosProyección';
+// Pills con apellido
+$pills = [];
+foreach (goleadores_categorias_slugs() as $slug) {
+    $pills[$slug] = categoria_etiqueta($slug);
+}
+
+$pageTitle = 'Goleadores ' . $etiqueta['titulo'] . ' | ChilenosProyección';
 $metaDescription = 'Tabla de goleadores — ' . $torneo;
 $navActive = 'goleadores';
 
@@ -25,17 +35,52 @@ require INCLUDES_PATH . '/header.php';
   <div class="container">
     <div class="section-head"><h1>Goleadores</h1></div>
     <p class="page-intro">
-      <?= e($torneo) ?>.
+      <span class="cat-full"><?= e($etiqueta['titulo']) ?></span>
+      <span class="cat-ini" title="<?= e($etiqueta['titulo']) ?>"><?= e($etiqueta['iniciales']) ?></span>
       <?php if ($fuente): ?>
-        <span class="meta">Fuente: <?= e($fuente) ?>.</span>
+        <span class="meta"> · Fuente: <?= e($fuente) ?>.</span>
       <?php endif; ?>
     </p>
+    <?php if (($reglas['descripcion'] ?? '') !== ''): ?>
+      <p class="reglas-torneo" role="note">
+        <strong>Contexto:</strong> <?= e($reglas['descripcion']) ?>
+        <?php if (count($secciones) > 1): ?>
+          · Secciones:
+          <?php
+            $bits = [];
+            foreach ($secciones as $s) {
+                $bits[] = $s['label'] . ' (' . $s['iniciales'] . ')';
+            }
+            echo e(implode(', ', $bits));
+          ?>
+        <?php endif; ?>
+      </p>
+    <?php endif; ?>
 
     <div class="cat-pills" role="navigation" aria-label="Categorías">
-      <?php foreach (['sub-20' => 'Sub-20', 'sub-18' => 'Sub-18', 'sub-16' => 'Sub-16', 'sub-15' => 'Sub-15'] as $slug => $label): ?>
-        <a class="pill <?= $cat === $slug ? 'is-active' : '' ?>" href="<?= e(app_url('/goleadores/' . $slug)) ?>"><?= e($label) ?></a>
+      <?php foreach ($pills as $slug => $et): ?>
+        <a
+          class="pill <?= $cat === $slug ? 'is-active' : '' ?>"
+          href="<?= e(app_url('/goleadores/' . $slug)) ?>"
+          title="<?= e($et['titulo']) ?>"
+        >
+          <span class="pill-full"><?= e($et['nombre']) ?> <small><?= e($et['apellido']) ?></small></span>
+          <span class="pill-ini"><?= e($et['iniciales']) ?></span>
+        </a>
       <?php endforeach; ?>
     </div>
+
+    <?php if (count($secciones) > 1): ?>
+      <div class="sec-legend" aria-label="Grupos o zonas">
+        <?php foreach ($secciones as $sec): ?>
+          <span class="sec-chip" title="<?= e($sec['label']) ?>">
+            <strong class="sec-ini"><?= e($sec['iniciales']) ?></strong>
+            <span class="sec-full-inline"><?= e($sec['corto'] ?? $sec['label']) ?></span>
+            <span class="sec-count"><?= count($sec['equipos'] ?? []) ?> clubes</span>
+          </span>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
 
     <div class="table-wrap">
       <table class="data-table">
@@ -55,7 +100,7 @@ require INCLUDES_PATH . '/header.php';
               $jSlug = $f['jugador_slug'] ?? null;
               $cSlug = $f['club_slug'] ?? null;
               $clubNom = $f['club'] ?? '';
-              $esc = $f['escudo_url'] ?? ($cSlug ? '/assets/escudos/' . $cSlug . '.png' : '');
+              $esc = $f['escudo_url'] ?? ($cSlug ? club_escudo_url($cSlug) : '');
               $pj = (int) ($f['partidos'] ?? 0);
               $g = (int) ($f['goles'] ?? 0);
               $prom = $f['promedio'] ?? ($pj > 0 ? round($g / $pj, 2) : 0);
@@ -100,9 +145,6 @@ require INCLUDES_PATH . '/header.php';
         </tbody>
       </table>
     </div>
-    <?php if ($fuente): ?>
-      <p class="page-intro" style="margin-top:1rem;font-size:.85rem">Top 10 · orden por goles (ANFP).</p>
-    <?php endif; ?>
   </div>
 </section>
 <?php require INCLUDES_PATH . '/footer.php'; ?>

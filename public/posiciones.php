@@ -3,12 +3,58 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/bootstrap.php';
 
 $cat = trim($_GET['categoria'] ?? 'sub-20') ?: 'sub-20';
-$filas = PosicionModel::porCategoria($cat);
-$torneo = $filas[0]['torneo'] ?? strtoupper($cat);
+$etiqueta = categoria_etiqueta($cat);
 $reglas = reglas_clasificacion($cat);
+$secciones = categoria_secciones($cat);
 
-$pageTitle = 'Posiciones ' . strtoupper($cat) . ' | ChilenosProyección';
-$metaDescription = 'Tabla de posiciones del fútbol joven chileno — ' . $torneo;
+// Pills de navegación con apellido + iniciales en móvil
+$pills = [
+    'sub-20' => categoria_etiqueta('sub-20'),
+    'sub-18' => categoria_etiqueta('sub-18'),
+    'sub-16' => categoria_etiqueta('sub-16'),
+    'sub-15' => categoria_etiqueta('sub-15'),
+    'sub-20-regional' => categoria_etiqueta('sub-20-regional'),
+    'sub-18-regional' => categoria_etiqueta('sub-18-regional'),
+    'sub-14-infantil' => categoria_etiqueta('sub-14-infantil'),
+    'sub-13-infantil' => categoria_etiqueta('sub-13-infantil'),
+    'sub-12-infantil' => categoria_etiqueta('sub-12-infantil'),
+    'sub-11-infantil' => categoria_etiqueta('sub-11-infantil'),
+];
+
+// Cargar filas: si hay varias secciones, una tabla por sección (planteles oficiales)
+$bloques = [];
+if (count($secciones) > 1 || (isset($secciones[0]['key']) && $secciones[0]['key'] !== 'unica')) {
+    foreach ($secciones as $sec) {
+        $labelTorneo = $etiqueta['titulo'] . ' · ' . $sec['label'];
+        $filasDb = PosicionModel::porCategoria($cat);
+        // Si la BD no trae datos por grupo, demo desde plantel de la sección
+        $filas = posiciones_demo_desde_equipos($sec['equipos'] ?? [], $labelTorneo);
+        // Si en el futuro hay campo grupo en BD, filtrar $filasDb aquí
+        if ($filasDb && count($secciones) === 1) {
+            $filas = $filasDb;
+        }
+        $bloques[] = [
+            'sec' => $sec,
+            'filas' => $filas,
+            'torneo' => $labelTorneo,
+        ];
+    }
+} else {
+    $filas = PosicionModel::porCategoria($cat);
+    $torneo = $filas[0]['torneo'] ?? $etiqueta['titulo'];
+    if (!$filas || (($filas[0]['torneo'] ?? '') === 'Demo Sub-20' && ($secciones[0]['equipos'] ?? []))) {
+        $filas = posiciones_demo_desde_equipos($secciones[0]['equipos'] ?? [], $etiqueta['titulo']);
+        $torneo = $etiqueta['titulo'];
+    }
+    $bloques[] = [
+        'sec' => $secciones[0] ?? ['key' => 'unica', 'label' => 'Tabla general', 'iniciales' => 'GEN', 'corto' => 'General'],
+        'filas' => $filas,
+        'torneo' => $torneo,
+    ];
+}
+
+$pageTitle = 'Posiciones ' . $etiqueta['titulo'] . ' | ChilenosProyección';
+$metaDescription = 'Tabla de posiciones — ' . $etiqueta['titulo'];
 $navActive = 'posiciones';
 
 require INCLUDES_PATH . '/header.php';
@@ -18,7 +64,11 @@ require INCLUDES_PATH . '/header.php';
     <div class="section-head">
       <h1>Posiciones</h1>
     </div>
-    <p class="page-intro"><?= e($torneo) ?>. Orden: puntos, diferencia de goles y goles a favor.</p>
+    <p class="page-intro">
+      <span class="cat-full"><?= e($etiqueta['titulo']) ?></span>
+      <span class="cat-ini" title="<?= e($etiqueta['titulo']) ?>"><?= e($etiqueta['iniciales']) ?></span>
+      · Orden: puntos, diferencia de goles y goles a favor.
+    </p>
     <?php if (($reglas['descripcion'] ?? '') !== ''): ?>
       <p class="reglas-torneo" role="note">
         <strong>Clasificación:</strong> <?= e($reglas['descripcion']) ?>
@@ -26,74 +76,100 @@ require INCLUDES_PATH . '/header.php';
     <?php endif; ?>
 
     <div class="cat-pills" role="navigation" aria-label="Categorías">
-      <?php foreach (['sub-20' => 'Sub-20', 'sub-18' => 'Sub-18', 'sub-16' => 'Sub-16', 'sub-15' => 'Sub-15', 'sub-20-regional' => 'Sub-20 Reg.'] as $slug => $label): ?>
-        <a class="pill <?= $cat === $slug ? 'is-active' : '' ?>" href="<?= e(app_url('/posiciones/' . $slug)) ?>"><?= e($label) ?></a>
+      <?php foreach ($pills as $slug => $et): ?>
+        <a
+          class="pill <?= $cat === $slug ? 'is-active' : '' ?>"
+          href="<?= e(app_url('/posiciones/' . $slug)) ?>"
+          title="<?= e($et['titulo']) ?>"
+        >
+          <span class="pill-full"><?= e($et['nombre']) ?> <small><?= e($et['apellido']) ?></small></span>
+          <span class="pill-ini"><?= e($et['iniciales']) ?></span>
+        </a>
       <?php endforeach; ?>
     </div>
 
-    <div class="table-wrap table-standings">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th class="col-pos">#</th>
-            <th>Club</th>
-            <th title="Partidos jugados">PJ</th>
-            <th title="Ganados">PG</th>
-            <th title="Empatados">PE</th>
-            <th title="Perdidos">PP</th>
-            <th title="Goles a favor">GF</th>
-            <th title="Goles en contra">GC</th>
-            <th title="Diferencia de goles">DG</th>
-            <th title="Puntos">Pts</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($filas as $i => $f): ?>
-            <?php
-              $pos = $i + 1;
-              $slugClub = $f['club_slug'] ?? null;
-              $esc = $f['escudo_url'] ?? ($slugClub ? club_escudo_url($slugClub) : null);
-              $dg = (int) ($f['dg'] ?? ((int) ($f['gf'] ?? 0) - (int) ($f['gc'] ?? 0)));
-              $clasifica = fila_clasifica($cat, $pos);
-              $rowClass = [];
-              if ($clasifica && ($reglas['estilo'] ?? '') === 'lider-grupo') {
-                  $rowClass[] = 'table-row--lider-grupo';
-              } elseif ($clasifica) {
-                  $rowClass[] = 'table-row--clasifica';
-              } elseif ($pos <= 3) {
-                  $rowClass[] = 'row-top';
-              }
-            ?>
-            <tr class="<?= e(implode(' ', $rowClass)) ?>">
-              <td class="col-pos"><span class="pos-badge"><?= $pos ?></span></td>
-              <td>
-                <div class="club-cell">
-                  <?php if ($esc): ?>
-                    <img class="club-mini" src="<?= e(app_url($esc)) ?>" alt="" width="28" height="28" loading="lazy" onerror="this.style.display='none'" />
-                  <?php endif; ?>
-                  <?php if ($slugClub): ?>
-                    <a href="<?= e(app_url('/club/' . $slugClub)) ?>"><?= e($f['club'] ?? '') ?></a>
-                  <?php else: ?>
-                    <?= e($f['club'] ?? '') ?>
-                  <?php endif; ?>
-                  <?php if ($clasifica): ?>
-                    <span class="badge-clasifica"><?= ($reglas['estilo'] ?? '') === 'lider-grupo' ? '1° grupo' : 'Clasifica' ?></span>
-                  <?php endif; ?>
-                </div>
-              </td>
-              <td><?= (int) ($f['pj'] ?? 0) ?></td>
-              <td><?= (int) ($f['pg'] ?? 0) ?></td>
-              <td><?= (int) ($f['pe'] ?? 0) ?></td>
-              <td><?= (int) ($f['pp'] ?? 0) ?></td>
-              <td><?= (int) ($f['gf'] ?? 0) ?></td>
-              <td><?= (int) ($f['gc'] ?? 0) ?></td>
-              <td class="<?= $dg > 0 ? 'pos-dg' : ($dg < 0 ? 'neg-dg' : '') ?>"><?= $dg > 0 ? '+' : '' ?><?= $dg ?></td>
-              <td class="col-pts"><strong><?= (int) ($f['pts'] ?? 0) ?></strong></td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
+    <?php foreach ($bloques as $bloque): ?>
+      <?php
+        $sec = $bloque['sec'];
+        $filas = $bloque['filas'];
+        $multi = count($bloques) > 1;
+      ?>
+      <div class="standings-block" id="sec-<?= e($sec['key'] ?? 'unica') ?>">
+        <?php if ($multi): ?>
+          <div class="standings-block-head">
+            <h2>
+              <span class="sec-full"><?= e($sec['label']) ?></span>
+              <span class="sec-ini badge-ini" title="<?= e($sec['label']) ?>"><?= e($sec['iniciales'] ?? '') ?></span>
+            </h2>
+            <p class="standings-block-meta"><?= e($etiqueta['titulo']) ?> · <?= e($sec['corto'] ?? $sec['label']) ?></p>
+          </div>
+        <?php endif; ?>
+
+        <div class="table-wrap table-standings">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-pos">#</th>
+                <th>Club</th>
+                <th title="Partidos jugados">PJ</th>
+                <th title="Ganados">PG</th>
+                <th title="Empatados">PE</th>
+                <th title="Perdidos">PP</th>
+                <th title="Goles a favor">GF</th>
+                <th title="Goles en contra">GC</th>
+                <th title="Diferencia de goles">DG</th>
+                <th title="Puntos">Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($filas as $i => $f): ?>
+                <?php
+                  $pos = $i + 1;
+                  $slugClub = $f['club_slug'] ?? null;
+                  $esc = $f['escudo_url'] ?? ($slugClub ? club_escudo_url($slugClub) : null);
+                  $dg = (int) ($f['dg'] ?? ((int) ($f['gf'] ?? 0) - (int) ($f['gc'] ?? 0)));
+                  $clasifica = fila_clasifica($cat, $pos);
+                  $rowClass = [];
+                  if ($clasifica && ($reglas['estilo'] ?? '') === 'lider-grupo') {
+                      $rowClass[] = 'table-row--lider-grupo';
+                  } elseif ($clasifica) {
+                      $rowClass[] = 'table-row--clasifica';
+                  } elseif ($pos <= 3) {
+                      $rowClass[] = 'row-top';
+                  }
+                ?>
+                <tr class="<?= e(implode(' ', $rowClass)) ?>">
+                  <td class="col-pos"><span class="pos-badge"><?= $pos ?></span></td>
+                  <td>
+                    <div class="club-cell">
+                      <?php if ($esc): ?>
+                        <img class="club-mini" src="<?= e(app_url($esc)) ?>" alt="" width="28" height="28" loading="lazy" onerror="this.style.display='none'" />
+                      <?php endif; ?>
+                      <?php if ($slugClub): ?>
+                        <a href="<?= e(app_url('/club/' . $slugClub)) ?>"><?= e($f['club'] ?? '') ?></a>
+                      <?php else: ?>
+                        <?= e($f['club'] ?? '') ?>
+                      <?php endif; ?>
+                      <?php if ($clasifica): ?>
+                        <span class="badge-clasifica"><?= ($reglas['estilo'] ?? '') === 'lider-grupo' ? '1° grupo' : 'Clasifica' ?></span>
+                      <?php endif; ?>
+                    </div>
+                  </td>
+                  <td><?= (int) ($f['pj'] ?? 0) ?></td>
+                  <td><?= (int) ($f['pg'] ?? 0) ?></td>
+                  <td><?= (int) ($f['pe'] ?? 0) ?></td>
+                  <td><?= (int) ($f['pp'] ?? 0) ?></td>
+                  <td><?= (int) ($f['gf'] ?? 0) ?></td>
+                  <td><?= (int) ($f['gc'] ?? 0) ?></td>
+                  <td class="<?= $dg > 0 ? 'pos-dg' : ($dg < 0 ? 'neg-dg' : '') ?>"><?= $dg > 0 ? '+' : '' ?><?= $dg ?></td>
+                  <td class="col-pts"><strong><?= (int) ($f['pts'] ?? 0) ?></strong></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <?php endforeach; ?>
   </div>
 </section>
 <?php require INCLUDES_PATH . '/footer.php'; ?>

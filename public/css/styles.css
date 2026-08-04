@@ -1048,30 +1048,115 @@ img[src*="/assets/escudos/"] {
 /* Footer bottom centered (esp. móvil) */
 .footer-bottom {
   text-align: center;
-  padding: 1.1rem 0 1.35rem;
+  padding: 1.15rem 1rem 1.5rem;
+  width: 100%;
 }
 .footer-bottom-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: .45rem;
+  gap: .4rem;
   text-align: center;
+  margin: 0 auto;
+  max-width: 36rem;
 }
 .footer-copy {
+  display: block;
+  width: 100%;
+  text-align: center;
   font-size: .88rem;
   font-weight: 600;
   color: var(--fg);
   letter-spacing: .02em;
 }
 .footer-dev {
-  font-size: .68rem;
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: .65rem;
   font-weight: 400;
-  letter-spacing: .04em;
+  letter-spacing: .06em;
   color: var(--muted);
-  opacity: 0.42;
+  opacity: 0.38;
   pointer-events: none;
   user-select: none;
+}
+
+/* Pills: apellido completo + iniciales en pantallas chicas */
+.pill-full small {
+  font-weight: 500;
+  opacity: .75;
+  margin-left: .15rem;
+}
+.pill-ini {
+  display: none;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.cat-ini, .sec-ini.badge-ini {
+  display: none;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: .12rem .4rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--color-naranjo);
+  vertical-align: middle;
+  margin-left: .35rem;
+}
+.standings-block {
+  margin-top: 1.75rem;
+}
+.standings-block-head h2 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0 0 .25rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+.standings-block-meta {
+  margin: 0 0 .85rem;
+  font-size: .88rem;
+  color: var(--muted);
+}
+.sec-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 0 0 1.1rem;
+}
+.sec-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .4rem .65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: .8rem;
+}
+.sec-chip .sec-ini {
+  display: inline-block;
+  font-weight: 700;
+  color: var(--color-naranjo);
+  min-width: 1.6rem;
+}
+.sec-chip .sec-count {
+  color: var(--muted);
+  font-size: .72rem;
+}
+@media (max-width: 720px) {
+  .pill-full { display: none; }
+  .pill-ini { display: inline; }
+  .cat-full { display: none; }
+  .cat-ini { display: inline-block; }
+  .sec-full { display: none; }
+  .sec-ini.badge-ini { display: inline-block; }
+  .sec-chip .sec-full-inline { display: none; }
 }
 
 /* Filas que clasifican (tablas) */
