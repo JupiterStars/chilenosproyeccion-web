@@ -114,7 +114,7 @@ function nav_divisiones(): array
 }
 
 /**
- * Planteles oficiales (Nacional 16 / Regional 25 / Infantil por grupos).
+ * Planteles y grupos oficiales (coordinación editorial).
  * @return array<string, mixed>
  */
 function planteles_oficiales(): array
@@ -145,7 +145,8 @@ function planteles_oficiales(): array
                 'Real San Joaquín', 'Provincial Osorno',
             ],
         ],
-        'infantil_grupos' => [
+        // Sub-13 y Sub-14
+        'infantil_sub13_14' => [
             'norte' => [
                 'Coquimbo Unido', 'Deportes Iquique', 'Deportes La Serena', 'Deportes Antofagasta',
                 'San Marcos', 'Deportes Copiapó',
@@ -165,7 +166,92 @@ function planteles_oficiales(): array
                 'Huachipato', 'Deportes Puerto Montt', 'Curicó Unido', 'Deportes Temuco', 'Ñublense',
             ],
         ],
+        // Sub-11 y Sub-12 — solo clasifica el 1° de cada grupo
+        'infantil_sub11_12' => [
+            'grupo_1' => [
+                'Universidad de Chile', 'Universidad Católica', 'Audax Italiano', 'Cobresal',
+                'Santiago Wanderers', 'Universidad San Sebastián', 'Atlético Colina', 'Unión La Calera',
+                'Captadores FC', 'San Luis', 'Trasandino', 'Everton', 'Deportes Recoleta',
+                'Real San Joaquín', 'Academia Antofagasta',
+            ],
+            'grupo_2' => [
+                'Colo-Colo', 'Unión Española', "O'Higgins", 'Palestino', 'Cobreloa', 'Colchagua',
+                'Santiago Morning', 'Magallanes', 'Santiago City', 'Fluminense Chile', 'Deportes Rengo',
+                'Sport Madrid', 'Diablos Rojos', 'Deportes Santa Cruz', 'Lautaro de Buin',
+            ],
+        ],
     ];
+}
+
+/** @deprecated usar infantil_sub13_14 */
+function planteles_infantil_sub13_14(): array
+{
+    return planteles_oficiales()['infantil_sub13_14'];
+}
+
+/**
+ * Reglas de clasificación por tipo de torneo.
+ * @return array{tipo:string,cupos:int,descripcion:string,estilo:string}
+ */
+function reglas_clasificacion(string $categoriaSlug): array
+{
+    // Nacional (4 categorías): top 8
+    if (in_array($categoriaSlug, ['sub-20', 'sub-18', 'sub-16', 'sub-15'], true)) {
+        return [
+            'tipo' => 'nacional',
+            'cupos' => 8,
+            'descripcion' => 'Clasifican los 8 primeros de la tabla (puestos 1° al 8°).',
+            'estilo' => 'clasifica', // naranja
+        ];
+    }
+    // Regional
+    if (str_contains($categoriaSlug, 'regional')) {
+        return [
+            'tipo' => 'regional',
+            'cupos' => 0,
+            'descripcion' => 'Campeonato Regional — Zona Centro Norte y Zona Centro Sur.',
+            'estilo' => 'clasifica',
+        ];
+    }
+    // Sub-11 / Sub-12: 1° de cada grupo
+    if (in_array($categoriaSlug, ['sub-11-infantil', 'sub-12-infantil'], true)) {
+        return [
+            'tipo' => 'infantil_11_12',
+            'cupos' => 1,
+            'descripcion' => 'Solo clasifica el 1° lugar de cada grupo (Grupo 1 y Grupo 2).',
+            'estilo' => 'lider-grupo', // rojo / distintivo
+        ];
+    }
+    // Sub-13 / Sub-14: grupos Norte / Centro 1 / Centro 2 / Sur
+    if (in_array($categoriaSlug, ['sub-13-infantil', 'sub-14-infantil'], true)) {
+        return [
+            'tipo' => 'infantil_13_14',
+            'cupos' => 0,
+            'descripcion' => 'Grupos: Norte, Centro 1, Centro 2 y Sur.',
+            'estilo' => 'clasifica',
+        ];
+    }
+    return [
+        'tipo' => 'otro',
+        'cupos' => 0,
+        'descripcion' => '',
+        'estilo' => 'clasifica',
+    ];
+}
+
+/**
+ * ¿La fila de tabla clasifica? (1-based position within its group/table).
+ */
+function fila_clasifica(string $categoriaSlug, int $posicion, ?string $grupo = null): bool
+{
+    $reglas = reglas_clasificacion($categoriaSlug);
+    if ($reglas['tipo'] === 'nacional') {
+        return $posicion >= 1 && $posicion <= 8;
+    }
+    if ($reglas['tipo'] === 'infantil_11_12') {
+        return $posicion === 1; // solo el líder del grupo
+    }
+    return false;
 }
 
 /** Categorías con tabla de goleadores (sin Sub-13 infantil). */

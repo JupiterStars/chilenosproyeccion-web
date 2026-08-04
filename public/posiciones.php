@@ -5,15 +5,11 @@ require_once dirname(__DIR__) . '/includes/bootstrap.php';
 $cat = trim($_GET['categoria'] ?? 'sub-20') ?: 'sub-20';
 $filas = PosicionModel::porCategoria($cat);
 $torneo = $filas[0]['torneo'] ?? strtoupper($cat);
+$reglas = reglas_clasificacion($cat);
 
 $pageTitle = 'Posiciones ' . strtoupper($cat) . ' | ChilenosProyección';
 $metaDescription = 'Tabla de posiciones del fútbol joven chileno — ' . $torneo;
 $navActive = 'posiciones';
-
-$cats = array_merge(
-    array_map(static fn ($c) => $c['slug'], categorias_futbol_joven()),
-    ['sub-20-regional', 'sub-18-regional']
-);
 
 require INCLUDES_PATH . '/header.php';
 ?>
@@ -23,6 +19,11 @@ require INCLUDES_PATH . '/header.php';
       <h1>Posiciones</h1>
     </div>
     <p class="page-intro"><?= e($torneo) ?>. Orden: puntos, diferencia de goles y goles a favor.</p>
+    <?php if (($reglas['descripcion'] ?? '') !== ''): ?>
+      <p class="reglas-torneo" role="note">
+        <strong>Clasificación:</strong> <?= e($reglas['descripcion']) ?>
+      </p>
+    <?php endif; ?>
 
     <div class="cat-pills" role="navigation" aria-label="Categorías">
       <?php foreach (['sub-20' => 'Sub-20', 'sub-18' => 'Sub-18', 'sub-16' => 'Sub-16', 'sub-15' => 'Sub-15', 'sub-20-regional' => 'Sub-20 Reg.'] as $slug => $label): ?>
@@ -51,10 +52,19 @@ require INCLUDES_PATH . '/header.php';
             <?php
               $pos = $i + 1;
               $slugClub = $f['club_slug'] ?? null;
-              $esc = $f['escudo_url'] ?? ($slugClub ? '/assets/escudos/' . $slugClub . '.png' : null);
+              $esc = $f['escudo_url'] ?? ($slugClub ? club_escudo_url($slugClub) : null);
               $dg = (int) ($f['dg'] ?? ((int) ($f['gf'] ?? 0) - (int) ($f['gc'] ?? 0)));
+              $clasifica = fila_clasifica($cat, $pos);
+              $rowClass = [];
+              if ($clasifica && ($reglas['estilo'] ?? '') === 'lider-grupo') {
+                  $rowClass[] = 'table-row--lider-grupo';
+              } elseif ($clasifica) {
+                  $rowClass[] = 'table-row--clasifica';
+              } elseif ($pos <= 3) {
+                  $rowClass[] = 'row-top';
+              }
             ?>
-            <tr class="<?= $pos <= 3 ? 'row-top' : '' ?>">
+            <tr class="<?= e(implode(' ', $rowClass)) ?>">
               <td class="col-pos"><span class="pos-badge"><?= $pos ?></span></td>
               <td>
                 <div class="club-cell">
@@ -65,6 +75,9 @@ require INCLUDES_PATH . '/header.php';
                     <a href="<?= e(app_url('/club/' . $slugClub)) ?>"><?= e($f['club'] ?? '') ?></a>
                   <?php else: ?>
                     <?= e($f['club'] ?? '') ?>
+                  <?php endif; ?>
+                  <?php if ($clasifica): ?>
+                    <span class="badge-clasifica"><?= ($reglas['estilo'] ?? '') === 'lider-grupo' ? '1° grupo' : 'Clasifica' ?></span>
                   <?php endif; ?>
                 </div>
               </td>

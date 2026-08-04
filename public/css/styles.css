@@ -1065,15 +1065,55 @@ img[src*="/assets/escudos/"] {
   letter-spacing: .02em;
 }
 .footer-dev {
-  font-size: .78rem;
+  font-size: .68rem;
+  font-weight: 400;
+  letter-spacing: .04em;
   color: var(--muted);
+  opacity: 0.42;
+  pointer-events: none;
+  user-select: none;
 }
-.footer-dev a {
+
+/* Filas que clasifican (tablas) */
+.table-row--clasifica td {
+  background: rgba(235, 124, 43, 0.1);
+}
+.table-row--clasifica .col-pos,
+.badge-clasifica {
   color: var(--color-naranjo);
-  font-weight: 600;
-  text-decoration: none;
+  font-weight: 700;
 }
-.footer-dev a:hover { text-decoration: underline; }
+.badge-clasifica {
+  display: inline-block;
+  font-size: .68rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .15rem .45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(235, 124, 43, 0.45);
+  background: rgba(235, 124, 43, 0.12);
+  margin-left: .35rem;
+  vertical-align: middle;
+}
+.table-row--lider-grupo td {
+  background: rgba(225, 6, 0, 0.08);
+  box-shadow: inset 3px 0 0 #e10600;
+}
+.table-row--lider-grupo .badge-clasifica {
+  color: #e10600;
+  border-color: rgba(225, 6, 0, 0.4);
+  background: rgba(225, 6, 0, 0.1);
+}
+.reglas-torneo {
+  font-size: .9rem;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
+  padding: .75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.reglas-torneo strong { color: var(--fg); }
 
 /* Social footer/mobile: centrados */
 .footer-social {

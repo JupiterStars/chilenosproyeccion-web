@@ -67,7 +67,7 @@
     <div class="container footer-bottom">
       <div class="footer-bottom-inner">
         <span class="footer-copy">© <?= date('Y') ?> Futbolistas Chilenos · Chile</span>
-        <span class="footer-dev">Desarrollado por <a href="https://atlastecnologic.cl" target="_blank" rel="noopener noreferrer">Atlas Tecnologic</a></span>
+        <span class="footer-dev">Desarrollado por Atlas Tecnologic</span>
       </div>
     </div>
   </footer>
