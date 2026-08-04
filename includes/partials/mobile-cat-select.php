@@ -41,11 +41,11 @@ $buildUrl = static function (string $slug, string $grupo = '') use ($basePath, $
     <select class="mobile-cat-select-input" data-nav-select aria-label="Elegir categoría">
       <?php foreach ($pills as $slug => $et): ?>
         <?php
-          $label = is_array($et)
-              ? trim(($et['nombre'] ?? '') . ' ' . ($et['apellido'] ?? ''))
-              : (string) $et;
-          if (is_array($et) && !empty($et['iniciales'])) {
-              $label = $et['iniciales'] . ' · ' . $label;
+          // Solo texto completo (ej. "Sub-16 Nacional"), sin iniciales S16-N
+          if (is_array($et)) {
+              $label = trim((string) ($et['titulo'] ?? (($et['nombre'] ?? '') . ' ' . ($et['apellido'] ?? ''))));
+          } else {
+              $label = (string) $et;
           }
         ?>
         <option value="<?= e($buildUrl((string) $slug)) ?>" <?= $cat === $slug ? 'selected' : '' ?>>

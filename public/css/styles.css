@@ -155,10 +155,11 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   .container { width: min(100% - 2rem, var(--max)); }
 }
 
-/* —— Un solo slider: rota bandas; la animación horizontal NO se reinicia —— */
+/* —— Un solo slider: rota bandas; sticky en toda la página al hacer scroll —— */
 .site-tickers {
-  position: relative;
-  z-index: 45;
+  position: sticky;
+  top: 0;
+  z-index: 55;
   height: var(--ticker-h);
   min-height: var(--ticker-h);
   overflow: hidden;
@@ -409,10 +410,14 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   margin: 0;
 }
 
-/* Header */
+/* Header: pegado bajo el ticker sticky */
 .site-header {
-  position: sticky; top: 0; z-index: 50; height: var(--header-h);
-  background: var(--header-bg); backdrop-filter: blur(12px);
+  position: sticky;
+  top: var(--ticker-h);
+  z-index: 50;
+  height: var(--header-h);
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
 .header-inner {
@@ -1261,14 +1266,18 @@ img[src*="/assets/escudos/"] {
   color: var(--muted);
   font-size: .72rem;
 }
+/* Texto completo de categoría (Sub-16 Nacional); sin iniciales S16-N duplicadas */
 @media (max-width: 720px) {
-  .pill-full { display: none; }
-  .pill-ini { display: inline; }
-  .cat-full { display: none; }
-  .cat-ini { display: inline-block; }
-  .sec-full { display: none; }
-  .sec-ini.badge-ini { display: inline-block; }
-  .sec-chip .sec-full-inline { display: none; }
+  .pill-full { display: inline; }
+  .pill-ini { display: none !important; }
+  .cat-full { display: inline; }
+  .cat-ini { display: none !important; }
+  .sec-full { display: inline; }
+  .sec-ini.badge-ini { display: none !important; }
+  .sec-chip .sec-full-inline { display: inline; }
+  .pill-full small {
+    margin-left: .2rem;
+  }
 }
 
 /* Filas que clasifican (todas las categorías): verde */
@@ -1333,7 +1342,7 @@ img[src*="/assets/escudos/"] {
 /* Barra de filtros anclada al hacer scroll (bajo el header) */
 .subnav-sticky {
   position: sticky;
-  top: var(--header-h);
+  top: calc(var(--header-h) + var(--ticker-h));
   z-index: 40;
   margin: 0 0 1.1rem;
   padding: .65rem 0 .7rem;
@@ -2890,6 +2899,19 @@ html[data-theme="dark"] .feed-card {
   outline: 2px solid rgba(235, 124, 43, 0.45);
   outline-offset: 1px;
   border-color: var(--color-naranjo);
+}
+
+/* Espacio tras Resultados / Próximos antes de la siguiente noticia */
+.feed-match-block {
+  margin-bottom: 1.35rem;
+  padding-bottom: .35rem;
+}
+.feed-match-block + .feed-featured,
+.feed-match-block + .feed-stack,
+.feed-match-block + .feed-news-pair,
+.feed-match-block + .feed-news-grid,
+.feed-match-block + .feed-section-head {
+  margin-top: .35rem;
 }
 
 /* Rotación partidos home (páginas de 4) */

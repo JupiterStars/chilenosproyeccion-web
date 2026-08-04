@@ -25,6 +25,7 @@ $matchLigaSuffix = $matchLigaSuffix ?? '';
 $matchIsResultado = !empty($matchIsResultado);
 $rotate = count($matchPages) > 1;
 ?>
+<section class="feed-match-block">
 <header class="feed-section-head">
   <div class="feed-section-brand">
     <div class="feed-section-badge<?= $matchBadgeClass !== '' ? ' ' . e($matchBadgeClass) : '' ?>"><?= e($matchBadge) ?></div>
@@ -74,3 +75,4 @@ $rotate = count($matchPages) > 1;
     </div>
   <?php endforeach; ?>
 </div>
+</section>
