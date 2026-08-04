@@ -134,14 +134,14 @@ require INCLUDES_PATH . '/header.php';
     </div>
 
     <div class="table-wrap table-wrap--fit table-goleadores">
-      <table class="data-table data-table--fit">
+      <table class="data-table data-table--fit data-table--goleadores">
         <thead>
           <tr>
-            <th class="col-pos">#</th>
-            <th>Jugador</th>
-            <th class="col-club-ico" title="Club">Club</th>
-            <th>Goles</th>
-            <?php if ($showPj): ?><th>PJ</th><th>Prom.</th><?php endif; ?>
+            <th class="col-pos" scope="col">#</th>
+            <th scope="col">Jugador</th>
+            <th class="col-club-ico" scope="col" title="Club">Club</th>
+            <th class="col-goles" scope="col">Goles</th>
+            <?php if ($showPj): ?><th scope="col">PJ</th><th scope="col">Prom.</th><?php endif; ?>
           </tr>
         </thead>
         <tbody>
@@ -201,7 +201,7 @@ require INCLUDES_PATH . '/header.php';
                     <span class="club-crest-fallback" title="<?= e($clubNom) ?>"><?= e(mb_substr($clubNom, 0, 1)) ?></span>
                   <?php endif; ?>
                 </td>
-                <td class="col-pts"><strong><?= $g ?></strong></td>
+                <td class="col-pts col-goles"><strong><?= $g ?></strong></td>
                 <?php if ($showPj): ?>
                   <td><?= $pj ?></td>
                   <td><?= e((string) $prom) ?></td>

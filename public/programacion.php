@@ -206,7 +206,13 @@ require INCLUDES_PATH . '/header.php';
     <div class="table-wrap table-wrap--fit">
       <table class="data-table data-table--programacion data-table--fit">
         <thead>
-          <tr><th>Fecha</th><th>Hora</th><th>Local</th><th>Visita</th><th>Recinto</th></tr>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col" class="col-hora">Hora</th>
+            <th scope="col">Local</th>
+            <th scope="col">Visita</th>
+            <th scope="col">Recinto</th>
+          </tr>
         </thead>
         <tbody>
           <?php foreach ($filas as $r): ?>

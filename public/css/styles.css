@@ -581,9 +581,13 @@ body.nav-open { overflow: hidden; touch-action: none; }
   flex-shrink: 0;
   color: var(--color-naranjo);
   transition: transform .2s ease;
+  transform: rotate(0deg); /* cerrado = flecha hacia abajo */
 }
-.mobile-acc[open] .mobile-acc-chev { transform: rotate(180deg); }
-.mobile-acc[open] .mobile-acc-summary {
+/* Solo el chevron del summary propio (no anidados): abierto = hacia arriba */
+.mobile-acc[open] > .mobile-acc-summary > .mobile-acc-chev {
+  transform: rotate(180deg);
+}
+.mobile-acc[open] > .mobile-acc-summary {
   color: var(--color-naranjo);
   border-bottom: 1px solid var(--border);
 }
@@ -637,8 +641,8 @@ body.nav-open { overflow: hidden; touch-action: none; }
   color: var(--color-naranjo);
   background: rgba(235, 124, 43, 0.08);
 }
-.mobile-acc-nested[open] > .mobile-acc-nested-summary .mobile-acc-chev {
-  transform: rotate(180deg);
+.mobile-acc-nested[open] > .mobile-acc-nested-summary > .mobile-acc-chev {
+  transform: rotate(180deg); /* abierto = flecha hacia arriba */
 }
 .mobile-acc-nested-body {
   display: flex;
@@ -652,6 +656,26 @@ body.nav-open { overflow: hidden; touch-action: none; }
   padding: .6rem .75rem;
   min-height: 40px;
   color: var(--text-secondary);
+}
+/* Niveles menú: Nacional → Sub-X → zona */
+.mobile-acc-l2 > .mobile-acc-nested-summary {
+  font-family: var(--font-display);
+  font-size: .8rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.mobile-acc-l3 {
+  margin-left: .15rem;
+}
+.mobile-acc-l3 > .mobile-acc-nested-summary {
+  font-size: .88rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.mobile-acc-l3 .mobile-acc-nested-body a {
+  font-size: .84rem;
+  padding-left: .9rem;
 }
 
 .mobile-links {
@@ -2855,10 +2879,14 @@ html[data-theme="dark"] .feed-card {
   border-color: var(--color-naranjo);
 }
 
-/* Rotación partidos home */
+/* Rotación partidos home (páginas de 4) */
 .feed-matches--rotate {
   position: relative;
-  min-height: 5.5rem;
+}
+.feed-matches-page {
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
 }
 .feed-match-slide[hidden] { display: none !important; }
 .feed-match-slide.is-active {
@@ -2871,6 +2899,46 @@ html[data-theme="dark"] .feed-card {
 }
 @media (prefers-reduced-motion: reduce) {
   .feed-match-slide.is-active { animation: none; }
+}
+
+/* 2 noticias lado a lado */
+.feed-news-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .55rem;
+  margin-bottom: .65rem;
+}
+.feed-news-pair .feed-grid-card-title {
+  font-size: .8rem;
+  -webkit-line-clamp: 3;
+}
+.news-layout-mobile .feed-stack {
+  margin-bottom: .65rem;
+}
+.news-layout-mobile .feed-featured {
+  margin-bottom: .55rem;
+}
+.news-layout-mobile .feed-news-grid {
+  margin-bottom: .65rem;
+}
+
+/* Rotación goleadores home (Sub-20 → Sub-18…) */
+.feed-scorers-slide[hidden] { display: none !important; }
+.feed-scorers-slide.is-active {
+  display: block;
+  animation: feed-match-in .4s ease;
+}
+.feed-scorers-cat {
+  margin: 0 0 .45rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--color-naranjo);
+}
+.feed-scorers-name a {
+  color: inherit;
+  font-weight: 600;
 }
 
 @media (max-width: 767px) {
@@ -2920,60 +2988,117 @@ html[data-theme="dark"] .feed-card {
     margin-bottom: .85rem;
   }
 
-  /* Tablas: caben en pantalla (goleadores prioritario) */
+  /* Tablas responsive: legibles, sin cortar encabezados */
   .table-wrap {
     margin-inline: 0;
     border: 1px solid var(--border);
     background: var(--card-elevated);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .table-wrap--fit,
   .table-goleadores {
-    overflow-x: visible;
+    overflow-x: auto;
   }
   .data-table,
   .data-table--fit {
     min-width: 0 !important;
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
   }
   .data-table th,
   .data-table td {
-    padding: .5rem .35rem;
-    font-size: .8rem;
-    word-wrap: break-word;
-    overflow-wrap: anywhere;
+    padding: .55rem .45rem;
+    font-size: .82rem;
+    vertical-align: middle;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .data-table thead th {
+    white-space: nowrap;
+    font-size: .72rem;
+    letter-spacing: .02em;
+    text-align: left;
   }
   .data-table th.col-pos,
   .data-table td.col-pos {
-    width: 2rem;
-    padding-left: .4rem;
-  }
-  .data-table th.col-club-ico,
-  .data-table td.cell-club-ico {
-    width: 2.6rem;
-    text-align: center;
-  }
-  .data-table .col-pts,
-  .data-table td.num {
-    width: 2.4rem;
+    width: 2.25rem;
     text-align: center;
     white-space: nowrap;
   }
+  .data-table th.col-club-ico,
+  .data-table td.cell-club-ico {
+    width: 3rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .data-table .col-pts,
+  .data-table td.num,
+  .data-table th:last-child,
+  .data-table td.col-pts {
+    width: 3.2rem;
+    text-align: center;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
   .player-name-link,
   .player-name {
-    font-size: .82rem;
-    line-height: 1.25;
+    font-size: .84rem;
+    line-height: 1.3;
+    display: inline-block;
+    max-width: 100%;
   }
   .club-crest-only {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
+    display: inline-grid;
+    place-items: center;
   }
   .club-crest-only img {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Goleadores: columnas estables # | Jugador | Club | Goles */
+  .table-goleadores .data-table {
+    table-layout: fixed;
+  }
+  .table-goleadores .data-table th,
+  .table-goleadores .data-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .table-goleadores .data-table th.col-pos,
+  .table-goleadores .data-table td.col-pos {
+    width: 12%;
+  }
+  .table-goleadores .data-table th:nth-child(2),
+  .table-goleadores .data-table td:nth-child(2) {
+    width: 48%;
+  }
+  .table-goleadores .data-table th.col-club-ico,
+  .table-goleadores .data-table td.cell-club-ico {
+    width: 20%;
+  }
+  .table-goleadores .data-table th:nth-child(4),
+  .table-goleadores .data-table td:nth-child(4),
+  .table-goleadores .data-table th:nth-child(5),
+  .table-goleadores .data-table td:nth-child(5) {
+    width: 14%;
+    text-align: center;
+  }
+  .table-goleadores thead th {
+    text-align: center;
+  }
+  .table-goleadores thead th:nth-child(2) {
+    text-align: left;
   }
 
   /* Posiciones: columnas esenciales en móvil */
+  .data-table--standings {
+    table-layout: fixed;
+  }
   .data-table--standings th:nth-child(4),
   .data-table--standings td:nth-child(4),
   .data-table--standings th:nth-child(5),
@@ -2988,18 +3113,27 @@ html[data-theme="dark"] .feed-card {
   .data-table--standings td:nth-child(11) {
     display: none;
   }
-  /* # Club PJ DG Pts */
+  .data-table--standings th:nth-child(1),
+  .data-table--standings td:nth-child(1) {
+    width: 12%;
+    text-align: center;
+  }
+  .data-table--standings th:nth-child(2),
+  .data-table--standings td:nth-child(2) {
+    width: 44%;
+  }
   .data-table--standings th:nth-child(3),
   .data-table--standings td:nth-child(3),
   .data-table--standings th:nth-child(9),
   .data-table--standings td:nth-child(9),
   .data-table--standings th:nth-child(10),
   .data-table--standings td:nth-child(10) {
-    width: 2.6rem;
+    width: 14%;
     text-align: center;
+    white-space: nowrap;
   }
   .data-table--standings .club-cell-name {
-    font-size: .78rem;
+    font-size: .8rem;
   }
   .data-table--standings .badge-clasifica {
     display: none;
@@ -3012,19 +3146,37 @@ html[data-theme="dark"] .feed-card {
     height: 22px !important;
   }
 
-  /* Programación más compacta */
+  /* Programación: Fecha | Hora | Local | Visita | Recinto */
+  .data-table--programacion {
+    table-layout: fixed;
+  }
+  .data-table--programacion thead th {
+    white-space: nowrap;
+    text-align: left;
+    font-size: .7rem;
+  }
   .data-table--programacion th:nth-child(1),
   .data-table--programacion td:nth-child(1) {
-    width: 3.2rem;
-    font-size: .72rem;
+    width: 18%;
+    font-size: .75rem;
+    white-space: nowrap;
   }
   .data-table--programacion th:nth-child(2),
   .data-table--programacion td:nth-child(2) {
-    width: 2.6rem;
+    width: 12%;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .data-table--programacion th:nth-child(3),
+  .data-table--programacion td:nth-child(3),
+  .data-table--programacion th:nth-child(4),
+  .data-table--programacion td:nth-child(4) {
+    width: 28%;
   }
   .data-table--programacion th:nth-child(5),
   .data-table--programacion td:nth-child(5) {
-    font-size: .72rem;
+    width: 14%;
+    font-size: .7rem;
   }
   .data-table--programacion .club-cell-name {
     font-size: .75rem;
@@ -3032,6 +3184,7 @@ html[data-theme="dark"] .feed-card {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    white-space: normal;
   }
 
   /* Subnav sticky más liviano en móvil */

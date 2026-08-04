@@ -1017,6 +1017,12 @@ function ticker_proximos_partidos(): array
         ['local' => 'Huachipato', 'local_slug' => 'huachipato', 'visita' => 'U. Católica', 'visita_slug' => 'universidad-catolica', 'cuando' => 'Dom 15:00', 'cat' => 'Sub-16'],
         ['local' => 'Audax Italiano', 'local_slug' => 'audax-italiano', 'visita' => 'Unión Española', 'visita_slug' => 'union-espanola', 'cuando' => 'Dom 17:00', 'cat' => 'Sub-15'],
         ['local' => 'Coquimbo Unido', 'local_slug' => 'coquimbo-unido', 'visita' => 'Deportes La Serena', 'visita_slug' => 'deportes-la-serena', 'cuando' => 'Lun 16:00', 'cat' => 'Sub-18'],
+        ['local' => 'Ñublense', 'local_slug' => 'nublense', 'visita' => 'Rangers', 'visita_slug' => 'rangers', 'cuando' => 'Lun 18:00', 'cat' => 'Sub-16'],
+        ['local' => 'O\'Higgins', 'local_slug' => 'o-higgins', 'visita' => 'Deportes Temuco', 'visita_slug' => 'deportes-temuco', 'cuando' => 'Mar 15:30', 'cat' => 'Sub-20'],
+        ['local' => 'S. Wanderers', 'local_slug' => 'santiago-wanderers', 'visita' => 'Deportes Iquique', 'visita_slug' => 'deportes-iquique', 'cuando' => 'Mar 17:00', 'cat' => 'Sub-15'],
+        ['local' => 'Unión Española', 'local_slug' => 'union-espanola', 'visita' => 'Magallanes', 'visita_slug' => 'magallanes', 'cuando' => 'Mié 16:00', 'cat' => 'Sub-18'],
+        ['local' => 'Palestino', 'local_slug' => 'palestino', 'visita' => 'Huachipato', 'visita_slug' => 'huachipato', 'cuando' => 'Mié 18:30', 'cat' => 'Sub-20'],
+        ['local' => 'Cobreloa', 'local_slug' => 'cobreloa', 'visita' => 'Colo-Colo', 'visita_slug' => 'colo-colo', 'cuando' => 'Jue 15:00', 'cat' => 'Sub-16'],
     ];
     try {
         $prog = ProgramacionModel::porCategoria('sub-20');

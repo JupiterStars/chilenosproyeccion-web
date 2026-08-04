@@ -55,6 +55,7 @@
     initTickerRotate();
     initLogoSwap();
     initMatchRotate();
+    initScorersRotate();
     initNavSelects();
   });
 
@@ -266,14 +267,20 @@
           });
         });
       });
-      // Dentro de un acc, un solo nested abierto
-      drawer.querySelectorAll(".mobile-acc-body").forEach(function (body) {
-        body.querySelectorAll(".mobile-acc-nested").forEach(function (nested) {
-          nested.addEventListener("toggle", function () {
-            if (!nested.open) return;
-            body.querySelectorAll(".mobile-acc-nested").forEach(function (other) {
-              if (other !== nested) other.open = false;
-            });
+      // Nested (Nacional / Sub-X / zona): un solo hermano abierto por nivel
+      drawer.querySelectorAll(".mobile-acc-nested").forEach(function (nested) {
+        nested.addEventListener("toggle", function () {
+          if (!nested.open) return;
+          var parent = nested.parentElement;
+          if (!parent) return;
+          Array.prototype.forEach.call(parent.children, function (child) {
+            if (
+              child !== nested &&
+              child.classList &&
+              child.classList.contains("mobile-acc-nested")
+            ) {
+              child.open = false;
+            }
           });
         });
       });
@@ -384,8 +391,8 @@
   }
 
   /**
-   * Home móvil: rota próximos / resultados cada 3s.
-   * Si hay 0–1 partidos no rota (no se muestra más de lo que hay).
+   * Home móvil: páginas de 4 partidos (próximos/resultados).
+   * Cada página completa rota cada 4s. Si hay 1 sola página, no rota.
    */
   function initMatchRotate() {
     var roots = document.querySelectorAll("[data-match-rotate]");
@@ -400,7 +407,7 @@
       var slides = Array.prototype.slice.call(root.querySelectorAll("[data-match-slide]"));
       if (slides.length < 2) return;
       var idx = 0;
-      var ms = parseInt(root.getAttribute("data-interval") || "3000", 10) || 3000;
+      var ms = parseInt(root.getAttribute("data-interval") || "4000", 10) || 4000;
 
       function show(i) {
         slides.forEach(function (slide, j) {
@@ -408,6 +415,50 @@
           slide.classList.toggle("is-active", on);
           if (on) {
             slide.removeAttribute("hidden");
+          } else {
+            slide.setAttribute("hidden", "");
+          }
+        });
+      }
+
+      show(0);
+      window.setInterval(function () {
+        idx = (idx + 1) % slides.length;
+        show(idx);
+      }, ms);
+    });
+  }
+
+  /**
+   * Home móvil: tabla de goleadores rota Sub-20 → Sub-18 → … cada 8s.
+   */
+  function initScorersRotate() {
+    var roots = document.querySelectorAll("[data-scorers-rotate]");
+    if (!roots.length) return;
+    var reduce = false;
+    try {
+      reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch (e) {}
+    if (reduce) return;
+
+    roots.forEach(function (root) {
+      var slides = Array.prototype.slice.call(root.querySelectorAll("[data-scorers-slide]"));
+      if (slides.length < 2) return;
+      var idx = 0;
+      var ms = parseInt(root.getAttribute("data-interval") || "8000", 10) || 8000;
+      var sub = root.closest(".home-mobile")
+        ? document.querySelector("[data-scorers-sub]")
+        : null;
+
+      function show(i) {
+        slides.forEach(function (slide, j) {
+          var on = j === i;
+          slide.classList.toggle("is-active", on);
+          if (on) {
+            slide.removeAttribute("hidden");
+            if (sub) {
+              sub.textContent = slide.getAttribute("data-scorers-label") || "";
+            }
           } else {
             slide.setAttribute("hidden", "");
           }

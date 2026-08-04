@@ -75,7 +75,7 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804m" />
+  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804n" />
 </head>
 <body class="<?= e($bodyClass) ?>">
   <!-- Google Tag Manager (noscript) -->
@@ -292,71 +292,83 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
         <?php endforeach; ?>
 
         <?php
-          // Desplegables de tablas: categoría + zona cuando aplica
+          // Goleadores / Posiciones / Programación:
+          // Nivel 1: sección · Nivel 2: Nacional|Regional|Infantil · Nivel 3: Sub-X · Nivel 4: zona
           $menuTablas = [
-              'goleadores' => ['label' => 'Goleadores', 'path' => 'goleadores', 'slugs' => goleadores_categorias_slugs()],
-              'posiciones' => [
-                  'label' => 'Posiciones',
-                  'path' => 'posiciones',
-                  'slugs' => [
-                      'sub-20', 'sub-18', 'sub-16', 'sub-15',
-                      'sub-20-regional', 'sub-18-regional', 'sub-16-regional', 'sub-15-regional',
-                      'sub-14-infantil', 'sub-13-infantil', 'sub-12-infantil', 'sub-11-infantil',
-                  ],
-              ],
-              'programacion' => [
-                  'label' => 'Programación',
-                  'path' => 'programacion',
-                  'slugs' => [
-                      'sub-20', 'sub-18', 'sub-16', 'sub-15',
-                      'sub-20-regional', 'sub-18-regional', 'sub-16-regional', 'sub-15-regional',
-                      'sub-14-infantil', 'sub-13-infantil', 'sub-12-infantil', 'sub-11-infantil',
-                  ],
-              ],
+              ['label' => 'Goleadores', 'path' => 'goleadores', 'allow' => goleadores_categorias_slugs()],
+              ['label' => 'Posiciones', 'path' => 'posiciones', 'allow' => null],
+              ['label' => 'Programación', 'path' => 'programacion', 'allow' => null],
           ];
+          $chev18 = '<svg class="mobile-acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+          $chev16 = '<svg class="mobile-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+          $chev14 = '<svg class="mobile-acc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
         ?>
         <?php foreach ($menuTablas as $tabla): ?>
           <details class="mobile-acc">
             <summary class="mobile-acc-summary">
               <span><?= e($tabla['label']) ?></span>
-              <svg class="mobile-acc-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              <?= $chev18 ?>
             </summary>
             <div class="mobile-acc-body">
-              <?php foreach ($tabla['slugs'] as $slug): ?>
+              <?php foreach ($divisiones as $divKey => $div): ?>
                 <?php
-                  $et = categoria_etiqueta($slug);
-                  $secs = categoria_secciones($slug);
-                  $multiZona = count($secs) > 1
-                      && !((isset($secs[0]['key']) && $secs[0]['key'] === 'unica'));
-                  // En programación no filtramos por grupo en URL (sin ?grupo)
-                  $usaGrupo = $multiZona && $tabla['path'] !== 'programacion';
+                  $divLabel = str_replace('Campeonato ', '', $div['label'] ?? $divKey);
+                  $itemsDiv = $div['items'] ?? [];
+                  if ($tabla['allow'] !== null) {
+                      $itemsDiv = array_values(array_filter(
+                          $itemsDiv,
+                          static fn ($it) => in_array($it['slug'] ?? '', $tabla['allow'], true)
+                      ));
+                  }
+                  if (!$itemsDiv) {
+                      continue;
+                  }
                 ?>
-                <?php if ($usaGrupo): ?>
-                  <details class="mobile-acc-nested">
-                    <summary class="mobile-acc-nested-summary">
-                      <span><?= e($et['iniciales']) ?> · <?= e($et['titulo']) ?></span>
-                      <svg class="mobile-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-                    </summary>
-                    <div class="mobile-acc-nested-body">
-                      <a href="<?= e(app_url('/' . $tabla['path'] . '/' . $slug)) ?>">General</a>
-                      <?php foreach ($secs as $sec): ?>
-                        <?php
-                          $href = app_url('/' . $tabla['path'] . '/' . $slug);
-                          if ($tabla['path'] === 'goleadores') {
-                              $href .= '?grupo=' . rawurlencode((string) ($sec['key'] ?? ''));
-                          } else {
-                              $href .= '#sec-' . rawurlencode((string) ($sec['key'] ?? ''));
-                          }
-                        ?>
-                        <a href="<?= e($href) ?>"><?= e((string) ($sec['corto'] ?? $sec['label'] ?? '')) ?></a>
-                      <?php endforeach; ?>
-                    </div>
-                  </details>
-                <?php else: ?>
-                  <a href="<?= e(app_url('/' . $tabla['path'] . '/' . $slug)) ?>">
-                    <?= e($et['iniciales']) ?> · <?= e($et['titulo']) ?>
-                  </a>
-                <?php endif; ?>
+                <details class="mobile-acc-nested mobile-acc-l2">
+                  <summary class="mobile-acc-nested-summary">
+                    <span><?= e($divLabel) ?></span>
+                    <?= $chev16 ?>
+                  </summary>
+                  <div class="mobile-acc-nested-body">
+                    <?php foreach ($itemsDiv as $item): ?>
+                      <?php
+                        $slug = (string) ($item['slug'] ?? '');
+                        $secs = categoria_secciones($slug);
+                        $multiZona = count($secs) > 1
+                            && !((isset($secs[0]['key']) && $secs[0]['key'] === 'unica'));
+                        // Zonas solo en goleadores/posiciones (no programación)
+                        $usaZona = $multiZona && $tabla['path'] !== 'programacion';
+                      ?>
+                      <?php if ($usaZona): ?>
+                        <details class="mobile-acc-nested mobile-acc-l3">
+                          <summary class="mobile-acc-nested-summary">
+                            <span><?= e((string) ($item['nombre'] ?? $slug)) ?></span>
+                            <?= $chev14 ?>
+                          </summary>
+                          <div class="mobile-acc-nested-body">
+                            <a href="<?= e(app_url('/' . $tabla['path'] . '/' . $slug)) ?>">Todas las zonas</a>
+                            <?php foreach ($secs as $sec): ?>
+                              <?php
+                                $key = (string) ($sec['key'] ?? '');
+                                $href = app_url('/' . $tabla['path'] . '/' . $slug);
+                                if ($tabla['path'] === 'goleadores') {
+                                    $href .= '?grupo=' . rawurlencode($key);
+                                } else {
+                                    $href .= '#sec-' . rawurlencode($key);
+                                }
+                              ?>
+                              <a href="<?= e($href) ?>"><?= e((string) ($sec['corto'] ?? $sec['label'] ?? $key)) ?></a>
+                            <?php endforeach; ?>
+                          </div>
+                        </details>
+                      <?php else: ?>
+                        <a href="<?= e(app_url('/' . $tabla['path'] . '/' . $slug)) ?>">
+                          <?= e((string) ($item['nombre'] ?? $slug)) ?>
+                        </a>
+                      <?php endif; ?>
+                    <?php endforeach; ?>
+                  </div>
+                </details>
               <?php endforeach; ?>
             </div>
           </details>
