@@ -51,6 +51,7 @@
     updateThemeMeta(currentTheme());
     initCookies();
     initMobileNav();
+    initDesktopDropdowns();
     initTickerRotate();
     initLogoSwap();
   });
@@ -108,6 +109,108 @@
       }
     });
   } catch (e) {}
+
+  /**
+   * Desktop: menús Nacional/Regional/Infantil estables al bajar el mouse.
+   * - Hover mantiene abierto (CSS + puente)
+   * - Click en el botón fija is-open (útil si el hover falla)
+   * - Cierra al salir del item con pequeño delay o al click afuera
+   */
+  function initDesktopDropdowns() {
+    var items = document.querySelectorAll(".nav-desktop .nav-item.has-dropdown");
+    if (!items.length) return;
+
+    var closeTimers = new WeakMap();
+
+    function clearTimer(item) {
+      var t = closeTimers.get(item);
+      if (t) {
+        window.clearTimeout(t);
+        closeTimers.delete(item);
+      }
+    }
+
+    function openItem(item) {
+      clearTimer(item);
+      items.forEach(function (other) {
+        if (other !== item) {
+          other.classList.remove("is-open");
+          var ob = other.querySelector(".nav-link-btn");
+          if (ob) ob.setAttribute("aria-expanded", "false");
+        }
+      });
+      item.classList.add("is-open");
+      var btn = item.querySelector(".nav-link-btn");
+      if (btn) btn.setAttribute("aria-expanded", "true");
+    }
+
+    function scheduleClose(item) {
+      clearTimer(item);
+      var t = window.setTimeout(function () {
+        if (!item.matches(":hover") && !item.contains(document.activeElement)) {
+          item.classList.remove("is-open");
+          var btn = item.querySelector(".nav-link-btn");
+          if (btn) btn.setAttribute("aria-expanded", "false");
+        }
+        closeTimers.delete(item);
+      }, 160);
+      closeTimers.set(item, t);
+    }
+
+    items.forEach(function (item) {
+      var btn = item.querySelector(".nav-link-btn");
+      if (!btn) return;
+
+      item.addEventListener("mouseenter", function () {
+        openItem(item);
+      });
+      item.addEventListener("mouseleave", function () {
+        scheduleClose(item);
+      });
+
+      btn.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (item.classList.contains("is-open") && item.matches(":hover")) {
+          // segundo click con hover: mantener abierto (no toggle confuso)
+          openItem(item);
+          return;
+        }
+        if (item.classList.contains("is-open")) {
+          item.classList.remove("is-open");
+          btn.setAttribute("aria-expanded", "false");
+        } else {
+          openItem(item);
+        }
+      });
+
+      item.querySelectorAll(".nav-dropdown a").forEach(function (a) {
+        a.addEventListener("focus", function () {
+          openItem(item);
+        });
+      });
+    });
+
+    document.addEventListener("click", function (ev) {
+      var t = ev.target;
+      if (!(t instanceof Element)) return;
+      if (t.closest(".nav-desktop .nav-item.has-dropdown")) return;
+      items.forEach(function (item) {
+        item.classList.remove("is-open");
+        var btn = item.querySelector(".nav-link-btn");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key !== "Escape") return;
+      items.forEach(function (item) {
+        item.classList.remove("is-open");
+        var btn = item.querySelector(".nav-link-btn");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
 
   function initMobileNav() {
     var menuBtn = document.querySelector("[data-menu-open]");

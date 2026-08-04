@@ -7,7 +7,7 @@
         <a class="logo logo--footer" href="<?= e(app_url('/')) ?>">
           <img
             class="logo-img logo-img--static"
-            src="<?= e(app_url('/assets/brand/logo-fc-rojo.png')) ?>?v=20260804j"
+            src="<?= e(app_url('/assets/brand/logo-fc-rojo.png')) ?>?v=20260804k"
             width="44"
             height="44"
             alt="Futbolistas Chilenos"
@@ -109,6 +109,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script src="<?= e(app_url('/js/main.js')) ?>?v=20260804h"></script>
+  <script src="<?= e(app_url('/js/main.js')) ?>?v=20260804k"></script>
 </body>
 </html>

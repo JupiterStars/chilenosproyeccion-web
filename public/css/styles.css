@@ -1549,35 +1549,97 @@ img[src*="/assets/escudos/"] {
   height: 44px;
 }
 
-/* Dropdown nav */
-.nav-item { position: relative; }
+/* Dropdown nav — puente de hover para no cerrar al bajar el mouse */
+.nav-item {
+  position: relative;
+  /* zona extra bajo el botón: el mouse sigue “dentro” del item */
+  padding-bottom: 0;
+}
+.nav-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 14px; /* puente entre botón y panel */
+  z-index: 45;
+}
 .nav-link-btn {
   display: inline-flex; align-items: center; gap: .25rem;
   padding: .45rem .65rem; border-radius: 8px; font-size: .82rem;
-  color: var(--muted); transition: .2s; background: transparent; border: 0;
+  color: var(--muted); transition: color .15s, background .15s;
+  background: transparent; border: 0;
   font-family: var(--font-body); font-weight: 500;
+  cursor: pointer;
 }
 .nav-link-btn:hover, .nav-item.is-active > .nav-link-btn,
-.nav-item:focus-within > .nav-link-btn {
+.nav-item:focus-within > .nav-link-btn,
+.nav-item.is-open > .nav-link-btn {
   color: var(--color-naranjo); background: rgba(235, 124, 43, 0.12);
 }
 .nav-link-btn .chev { opacity: .7; transition: transform .2s; }
-.nav-item:hover .chev, .nav-item:focus-within .chev { transform: rotate(180deg); }
+.nav-item:hover .chev,
+.nav-item:focus-within .chev,
+.nav-item.is-open .chev { transform: rotate(180deg); }
 .nav-dropdown {
-  position: absolute; top: calc(100% + 6px); left: 0; min-width: 180px;
-  background: var(--card-elevated); border: 1px solid var(--border);
-  border-radius: 12px; padding: .4rem; box-shadow: var(--shadow-card);
-  opacity: 0; pointer-events: none; transform: translateY(6px);
-  transition: .18s ease; z-index: 40;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 190px;
+  margin: 0;
+  padding: 10px 0 0; /* el padding superior es hoverable (sin hueco) */
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity .12s ease, transform .12s ease, visibility .12s;
+  z-index: 50;
 }
-.nav-item:hover .nav-dropdown, .nav-item:focus-within .nav-dropdown {
-  opacity: 1; pointer-events: auto; transform: translateY(0);
+/* panel visual real */
+.nav-dropdown::before {
+  content: "";
+  position: absolute;
+  inset: 10px 0 0;
+  background: var(--card-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  z-index: -1;
+}
+.nav-item:hover .nav-dropdown,
+.nav-item:focus-within .nav-dropdown,
+.nav-item.is-open .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  /* cierra un poco más lento al salir: se siente menos “nervioso” */
+  transition-delay: 0s;
+}
+.nav-item:not(:hover):not(:focus-within):not(.is-open) .nav-dropdown {
+  transition-delay: .08s; /* breve gracia al salir del item */
 }
 .nav-dropdown a {
-  display: block; padding: .55rem .75rem; border-radius: 8px;
-  font-size: .85rem; color: var(--fg);
+  display: block;
+  position: relative;
+  z-index: 1;
+  padding: .55rem .85rem;
+  margin: 0 .35rem;
+  border-radius: 8px;
+  font-size: .85rem;
+  color: var(--fg);
 }
-.nav-dropdown a:hover { background: rgba(235,124,43,.12); color: var(--color-naranjo); }
+.nav-dropdown a:first-of-type { margin-top: .15rem; }
+.nav-dropdown a:last-of-type { margin-bottom: .35rem; }
+.nav-dropdown a:hover,
+.nav-dropdown a:focus {
+  background: rgba(235,124,43,.12);
+  color: var(--color-naranjo);
+  outline: none;
+}
 
 
 

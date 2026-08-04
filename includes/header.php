@@ -10,8 +10,8 @@ $divisiones = nav_divisiones();
 $tickerBandas = ticker_bandas();
 $socialFb = social_facebook_url();
 $socialIg = social_instagram_url();
-$logoFj = app_url('/assets/brand/logo-fj-naranja.png') . '?v=20260804j';
-$logoFc = app_url('/assets/brand/logo-fc-rojo.png') . '?v=20260804j';
+$logoFj = app_url('/assets/brand/logo-fj-naranja.png') . '?v=20260804k';
+$logoFc = app_url('/assets/brand/logo-fc-rojo.png') . '?v=20260804k';
 $faviconFc = app_url('/assets/brand/favicon-fc.png');
 // Redes: solo menú móvil / footer — no en header superior
 ?>
@@ -75,7 +75,7 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804j" />
+  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804k" />
 </head>
 <body class="<?= e($bodyClass) ?>">
   <!-- Google Tag Manager (noscript) -->
