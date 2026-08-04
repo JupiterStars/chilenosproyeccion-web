@@ -2,13 +2,19 @@
 RewriteEngine On
 RewriteBase /
 
-# Estáticos reales
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
+# Estáticos reales (archivos)
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
 # Home
 RewriteRule ^$ index.php [L,QSA]
+
+# API Hermes
+RewriteRule ^api/noticias/?$ api/noticias.php [L,QSA]
+
+# Admin
+RewriteRule ^admin/?$ admin/index.php [L,QSA]
+RewriteRule ^admin/login/?$ admin/login.php [L,QSA]
 
 # Fútbol joven (Nacional + Regional + Infantil)
 RewriteRule ^futbol-joven/?$ futbol-joven.php [L,QSA]
@@ -40,10 +46,10 @@ RewriteRule ^entrevista/([a-z0-9\-]+)/?$ entrevista.php?slug=$1 [L,QSA]
 RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
 RewriteRule ^robots\.txt$ robots.php [L,QSA]
 
-# Bloquear .env y includes
+# Bloquear .env
 RewriteRule (^|/)\.env - [F,L]
 
-# Seguridad básica
+# Seguridad básica (también se envían desde PHP)
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
   Header set X-Frame-Options "SAMEORIGIN"
