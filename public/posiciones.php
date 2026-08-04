@@ -82,7 +82,14 @@ require INCLUDES_PATH . '/header.php';
     <div class="subnav-sticky" data-subnav-sticky>
       <?= nav_misma_categoria($cat, 'posiciones') ?>
 
-      <div class="cat-pills cat-pills--scroll" role="navigation" aria-label="Categorías">
+      <?php
+        $basePath = 'posiciones';
+        $gruposNav = $multi ? array_map(static fn ($b) => $b['sec'], $bloques) : [];
+        $grupoParam = '';
+        require INCLUDES_PATH . '/partials/mobile-cat-select.php';
+      ?>
+
+      <div class="cat-pills cat-pills--scroll desktop-only-nav" role="navigation" aria-label="Categorías">
         <?php foreach ($pills as $slug => $et): ?>
           <a
             class="pill <?= $cat === $slug ? 'is-active' : '' ?>"
@@ -96,7 +103,7 @@ require INCLUDES_PATH . '/header.php';
       </div>
 
       <?php if ($multi): ?>
-        <div class="grupo-jump" role="navigation" aria-label="Ir a grupo">
+        <div class="grupo-jump desktop-only-nav" role="navigation" aria-label="Ir a grupo">
           <?php foreach ($bloques as $bloque): ?>
             <?php $sec = $bloque['sec']; ?>
             <a class="grupo-jump-btn" href="#sec-<?= e($sec['key'] ?? 'unica') ?>">
@@ -132,8 +139,8 @@ require INCLUDES_PATH . '/header.php';
           </div>
         <?php endif; ?>
 
-        <div class="table-wrap table-standings">
-          <table class="data-table">
+        <div class="table-wrap table-standings table-wrap--fit">
+          <table class="data-table data-table--fit data-table--standings">
             <thead>
               <tr>
                 <th class="col-pos">#</th>

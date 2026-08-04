@@ -54,6 +54,8 @@
     initDesktopDropdowns();
     initTickerRotate();
     initLogoSwap();
+    initMatchRotate();
+    initNavSelects();
   });
 
   /** Alterna logo Fútbol Joven (naranja) y Futbolistas Chilenos (rojo) cada 5s + textos */
@@ -255,12 +257,23 @@
       drawer.querySelectorAll("a").forEach(function (a) {
         a.addEventListener("click", closeNav);
       });
-      // Un solo desplegable abierto a la vez (Nacional / Regional / Infantil)
+      // Un solo desplegable de primer nivel abierto a la vez
       drawer.querySelectorAll(".mobile-acc").forEach(function (acc) {
         acc.addEventListener("toggle", function () {
           if (!acc.open) return;
           drawer.querySelectorAll(".mobile-acc").forEach(function (other) {
             if (other !== acc) other.open = false;
+          });
+        });
+      });
+      // Dentro de un acc, un solo nested abierto
+      drawer.querySelectorAll(".mobile-acc-body").forEach(function (body) {
+        body.querySelectorAll(".mobile-acc-nested").forEach(function (nested) {
+          nested.addEventListener("toggle", function () {
+            if (!nested.open) return;
+            body.querySelectorAll(".mobile-acc-nested").forEach(function (other) {
+              if (other !== nested) other.open = false;
+            });
           });
         });
       });
@@ -368,5 +381,62 @@
       idx = (idx + 1) % bands.length;
       show(idx);
     }, INTERVAL_MS);
+  }
+
+  /**
+   * Home móvil: rota próximos / resultados cada 3s.
+   * Si hay 0–1 partidos no rota (no se muestra más de lo que hay).
+   */
+  function initMatchRotate() {
+    var roots = document.querySelectorAll("[data-match-rotate]");
+    if (!roots.length) return;
+    var reduce = false;
+    try {
+      reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch (e) {}
+    if (reduce) return;
+
+    roots.forEach(function (root) {
+      var slides = Array.prototype.slice.call(root.querySelectorAll("[data-match-slide]"));
+      if (slides.length < 2) return;
+      var idx = 0;
+      var ms = parseInt(root.getAttribute("data-interval") || "3000", 10) || 3000;
+
+      function show(i) {
+        slides.forEach(function (slide, j) {
+          var on = j === i;
+          slide.classList.toggle("is-active", on);
+          if (on) {
+            slide.removeAttribute("hidden");
+          } else {
+            slide.setAttribute("hidden", "");
+          }
+        });
+      }
+
+      show(0);
+      window.setInterval(function () {
+        idx = (idx + 1) % slides.length;
+        show(idx);
+      }, ms);
+    });
+  }
+
+  /** Select de categoría/zona en móvil: navega o hace scroll a ancla */
+  function initNavSelects() {
+    document.querySelectorAll("[data-nav-select]").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var val = sel.value || "";
+        if (!val || val === "#top") return;
+        if (val.charAt(0) === "#") {
+          var el = document.querySelector(val);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          return;
+        }
+        window.location.href = val;
+      });
+    });
   }
 })();

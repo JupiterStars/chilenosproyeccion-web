@@ -109,6 +109,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script src="<?= e(app_url('/js/main.js')) ?>?v=20260804k"></script>
+  <script src="<?= e(app_url('/js/main.js')) ?>?v=20260804m"></script>
 </body>
 </html>

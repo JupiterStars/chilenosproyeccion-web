@@ -24,8 +24,9 @@ if (count($secSub20) < 2) {
     $secSub20 = array_slice($recientes, 0, 3);
 }
 
-$proximos = array_slice(ticker_proximos_partidos(), 0, 3);
-$resultados = array_slice(ticker_resultados_partidos(), 0, 3);
+// Hasta 8 para rotar en móvil cada 3s; si hay 0–1 no rota
+$proximos = array_slice(ticker_proximos_partidos(), 0, 8);
+$resultados = array_slice(ticker_resultados_partidos(), 0, 8);
 
 $pageTitle = 'ChilenosProyección — Fútbol joven chileno';
 $metaDescription = 'Resultados, goleadores, debuts y proyecciones Sub-20 a Sub-15. El medio del fútbol joven chileno.';
@@ -170,11 +171,13 @@ require INCLUDES_PATH . '/header.php';
       <?php $n = $feedLead; require INCLUDES_PATH . '/partials/feed-story-featured.php'; ?>
     <?php endif; ?>
 
-    <div class="feed-stack">
-      <?php foreach ($feedRows as $n): ?>
-        <?php require INCLUDES_PATH . '/partials/feed-story-row.php'; ?>
-      <?php endforeach; ?>
-    </div>
+    <?php if ($feedRows): ?>
+      <div class="feed-news-grid">
+        <?php foreach ($feedRows as $n): ?>
+          <?php require INCLUDES_PATH . '/partials/feed-story-grid-card.php'; ?>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
 
     <?php if ($proximos): ?>
       <header class="feed-section-head">
@@ -187,20 +190,25 @@ require INCLUDES_PATH . '/header.php';
         </div>
         <a class="feed-ver-todo" href="<?= e(app_url('/programacion/sub-20')) ?>">Ver todo</a>
       </header>
-      <div class="feed-matches">
-        <?php foreach ($proximos as $p): ?>
-          <?php
-            $match = [
-                'local' => $p['club_local'] ?? '',
-                'visita' => $p['club_visita'] ?? '',
-                'escudo_local' => $p['escudo_local'] ?? '',
-                'escudo_visita' => $p['escudo_visita'] ?? '',
-                'hora' => $p['cuando'] ?? 'vs',
-                'liga' => ($p['categoria'] ?? 'Sub-20') . ' · Próximo',
-                'href' => app_url('/programacion/sub-20'),
-            ];
-            require INCLUDES_PATH . '/partials/feed-match-card.php';
-          ?>
+      <div
+        class="feed-matches<?= count($proximos) > 1 ? ' feed-matches--rotate' : '' ?>"
+        <?= count($proximos) > 1 ? 'data-match-rotate data-interval="3000"' : '' ?>
+      >
+        <?php foreach ($proximos as $mi => $p): ?>
+          <div class="feed-match-slide<?= $mi === 0 ? ' is-active' : '' ?>" data-match-slide <?= $mi === 0 ? '' : 'hidden' ?>>
+            <?php
+              $match = [
+                  'local' => $p['club_local'] ?? '',
+                  'visita' => $p['club_visita'] ?? '',
+                  'escudo_local' => $p['escudo_local'] ?? '',
+                  'escudo_visita' => $p['escudo_visita'] ?? '',
+                  'hora' => $p['cuando'] ?? 'vs',
+                  'liga' => ($p['categoria'] ?? 'Sub-20') . ' · Próximo',
+                  'href' => app_url('/programacion/sub-20'),
+              ];
+              require INCLUDES_PATH . '/partials/feed-match-card.php';
+            ?>
+          </div>
         <?php endforeach; ?>
       </div>
     <?php endif; ?>
@@ -235,20 +243,25 @@ require INCLUDES_PATH . '/header.php';
         </div>
         <a class="feed-ver-todo" href="<?= e(app_url('/posiciones/sub-20')) ?>">Ver todo</a>
       </header>
-      <div class="feed-matches">
-        <?php foreach ($resultados as $r): ?>
-          <?php
-            $match = [
-                'local' => $r['club_local'] ?? '',
-                'visita' => $r['club_visita'] ?? '',
-                'escudo_local' => $r['escudo_local'] ?? '',
-                'escudo_visita' => $r['escudo_visita'] ?? '',
-                'score' => $r['score'] ?? '',
-                'liga' => ($r['categoria'] ?? '') . ' · Final',
-                'href' => app_url('/posiciones/sub-20'),
-            ];
-            require INCLUDES_PATH . '/partials/feed-match-card.php';
-          ?>
+      <div
+        class="feed-matches<?= count($resultados) > 1 ? ' feed-matches--rotate' : '' ?>"
+        <?= count($resultados) > 1 ? 'data-match-rotate data-interval="3000"' : '' ?>
+      >
+        <?php foreach ($resultados as $mi => $r): ?>
+          <div class="feed-match-slide<?= $mi === 0 ? ' is-active' : '' ?>" data-match-slide <?= $mi === 0 ? '' : 'hidden' ?>>
+            <?php
+              $match = [
+                  'local' => $r['club_local'] ?? '',
+                  'visita' => $r['club_visita'] ?? '',
+                  'escudo_local' => $r['escudo_local'] ?? '',
+                  'escudo_visita' => $r['escudo_visita'] ?? '',
+                  'score' => $r['score'] ?? '',
+                  'liga' => ($r['categoria'] ?? '') . ' · Final',
+                  'href' => app_url('/posiciones/sub-20'),
+              ];
+              require INCLUDES_PATH . '/partials/feed-match-card.php';
+            ?>
+          </div>
         <?php endforeach; ?>
       </div>
     <?php endif; ?>
@@ -265,14 +278,18 @@ require INCLUDES_PATH . '/header.php';
         <a class="feed-ver-todo" href="<?= e(app_url('/futbol-joven/sub-20')) ?>">Ver todo</a>
       </header>
       <?php
+        // Móvil: 1 grande + hasta 4 en grilla (mismo patrón que categorías)
         $n = $secSub20[0];
         require INCLUDES_PATH . '/partials/feed-story-featured.php';
+        $secGrid = array_slice($secSub20, 1, 4);
       ?>
-      <div class="feed-stack">
-        <?php foreach (array_slice($secSub20, 1, 3) as $n): ?>
-          <?php require INCLUDES_PATH . '/partials/feed-story-row.php'; ?>
-        <?php endforeach; ?>
-      </div>
+      <?php if ($secGrid): ?>
+        <div class="feed-news-grid">
+          <?php foreach ($secGrid as $n): ?>
+            <?php require INCLUDES_PATH . '/partials/feed-story-grid-card.php'; ?>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
     <?php endif; ?>
 
     <header class="feed-section-head">

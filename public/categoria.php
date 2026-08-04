@@ -67,11 +67,7 @@ require INCLUDES_PATH . '/header.php';
     <?php endif; ?>
 
     <?php if ($noticias): ?>
-      <div class="card-grid featured">
-        <?php foreach ($noticias as $noticia): ?>
-          <?php require INCLUDES_PATH . '/partials/news-card.php'; ?>
-        <?php endforeach; ?>
-      </div>
+      <?php require INCLUDES_PATH . '/partials/news-feed-pattern.php'; ?>
       <?php if ($total > $porPagina && $totalPaginas > 1): ?>
         <nav class="pagination" aria-label="Paginación">
           <?php for ($p = 1; $p <= $totalPaginas; $p++): ?>

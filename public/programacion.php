@@ -111,8 +111,23 @@ require INCLUDES_PATH . '/header.php';
     <div class="subnav-sticky" data-subnav-sticky>
       <?= nav_misma_categoria($cat, 'programacion') ?>
 
+      <?php
+        // Select móvil: todas las categorías de fútbol joven
+        $basePath = 'programacion';
+        $pills = [];
+        foreach ($divisiones as $div) {
+            foreach ($div['items'] as $cItem) {
+                $pills[$cItem['slug']] = categoria_etiqueta($cItem['slug']);
+            }
+        }
+        $gruposNav = [];
+        $grupoParam = '';
+        $fechaParam = $fechaSeleccionada;
+        require INCLUDES_PATH . '/partials/mobile-cat-select.php';
+      ?>
+
       <!-- Divisiones: Nacional / Regional / Infantil -->
-      <div class="div-tabs" role="navigation" aria-label="Divisiones">
+      <div class="div-tabs desktop-only-nav" role="navigation" aria-label="Divisiones">
         <?php foreach ($divisiones as $dKey => $div): ?>
           <?php
             $firstSlug = $div['items'][0]['slug'] ?? 'sub-20';
@@ -125,7 +140,7 @@ require INCLUDES_PATH . '/header.php';
       </div>
 
       <!-- Categorías de la división -->
-      <div class="chip-row chip-row--prog cat-pills--scroll" role="navigation" aria-label="Categorías">
+      <div class="chip-row chip-row--prog cat-pills--scroll desktop-only-nav" role="navigation" aria-label="Categorías">
         <?php foreach ($itemsDivision as $c): ?>
           <a
             class="chip <?= $c['slug'] === $cat ? 'is-active' : '' ?>"
@@ -188,8 +203,8 @@ require INCLUDES_PATH . '/header.php';
       <?php endif; ?>
     </div>
 
-    <div class="table-wrap">
-      <table class="data-table data-table--programacion">
+    <div class="table-wrap table-wrap--fit">
+      <table class="data-table data-table--programacion data-table--fit">
         <thead>
           <tr><th>Fecha</th><th>Hora</th><th>Local</th><th>Visita</th><th>Recinto</th></tr>
         </thead>

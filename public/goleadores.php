@@ -92,7 +92,12 @@ require INCLUDES_PATH . '/header.php';
     <div class="subnav-sticky" data-subnav-sticky>
       <?= nav_misma_categoria($cat, 'goleadores') ?>
 
-      <div class="cat-pills cat-pills--scroll" role="navigation" aria-label="Categorías">
+      <?php
+        $basePath = 'goleadores';
+        require INCLUDES_PATH . '/partials/mobile-cat-select.php';
+      ?>
+
+      <div class="cat-pills cat-pills--scroll desktop-only-nav" role="navigation" aria-label="Categorías">
         <?php foreach ($pills as $slug => $et): ?>
           <a
             class="pill <?= $cat === $slug ? 'is-active' : '' ?>"
@@ -106,7 +111,7 @@ require INCLUDES_PATH . '/header.php';
       </div>
 
       <?php if ($gruposNav): ?>
-        <div class="grupo-jump" role="navigation" aria-label="Filtrar por zona">
+        <div class="grupo-jump desktop-only-nav" role="navigation" aria-label="Filtrar por zona">
           <a
             class="grupo-jump-btn <?= $grupoParam === '' ? 'is-active' : '' ?>"
             href="<?= e($baseGol($cat)) ?>"
@@ -128,8 +133,8 @@ require INCLUDES_PATH . '/header.php';
       <?php endif; ?>
     </div>
 
-    <div class="table-wrap">
-      <table class="data-table">
+    <div class="table-wrap table-wrap--fit table-goleadores">
+      <table class="data-table data-table--fit">
         <thead>
           <tr>
             <th class="col-pos">#</th>

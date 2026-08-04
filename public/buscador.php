@@ -34,7 +34,6 @@ require INCLUDES_PATH . '/header.php';
 <section class="section">
   <div class="container">
     <div class="section-head"><h1>Buscador</h1></div>
-    <p class="page-intro">Título, resumen y cuerpo. Filtrá por categoría, tag o club.</p>
 
     <form class="search-panel" method="get" action="<?= e(app_url('/buscador')) ?>" role="search">
       <div class="search-panel-row">

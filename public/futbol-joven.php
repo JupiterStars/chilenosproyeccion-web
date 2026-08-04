@@ -25,11 +25,10 @@ require INCLUDES_PATH . '/header.php';
       <a class="chip" href="<?= e(app_url('/posiciones/sub-20')) ?>">Posiciones</a>
       <a class="chip" href="<?= e(app_url('/programacion/sub-20')) ?>">Programación</a>
     </div>
-    <div class="card-grid featured">
-      <?php foreach ($recientes as $noticia): ?>
-        <?php require INCLUDES_PATH . '/partials/news-card.php'; ?>
-      <?php endforeach; ?>
-    </div>
+    <?php
+      $noticias = $recientes;
+      require INCLUDES_PATH . '/partials/news-feed-pattern.php';
+    ?>
   </div>
 </section>
 <?php require INCLUDES_PATH . '/footer.php'; ?>

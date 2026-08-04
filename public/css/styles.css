@@ -608,6 +608,52 @@ body.nav-open { overflow: hidden; touch-action: none; }
   color: var(--color-naranjo);
 }
 
+/* Nested: zonas / grupos dentro de categoría */
+.mobile-acc-nested {
+  border: 0;
+  border-radius: 8px;
+  margin: .15rem 0;
+  background: transparent;
+  overflow: hidden;
+}
+.mobile-acc-nested-summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .7rem .9rem;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--fg);
+  border-radius: 8px;
+  user-select: none;
+}
+.mobile-acc-nested-summary::-webkit-details-marker { display: none; }
+.mobile-acc-nested-summary::marker { content: ""; }
+.mobile-acc-nested[open] > .mobile-acc-nested-summary {
+  color: var(--color-naranjo);
+  background: rgba(235, 124, 43, 0.08);
+}
+.mobile-acc-nested[open] > .mobile-acc-nested-summary .mobile-acc-chev {
+  transform: rotate(180deg);
+}
+.mobile-acc-nested-body {
+  display: flex;
+  flex-direction: column;
+  padding: .15rem 0 .35rem .55rem;
+  margin-left: .35rem;
+  border-left: 2px solid rgba(235, 124, 43, 0.35);
+}
+.mobile-acc-nested-body a {
+  font-size: .88rem;
+  padding: .6rem .75rem;
+  min-height: 40px;
+  color: var(--text-secondary);
+}
+
 .mobile-links {
   margin-top: .65rem;
   padding-top: .35rem;
@@ -2761,4 +2807,322 @@ html[data-theme="dark"] .feed-card {
   /* grilla del home feed no aplica en desktop (home-mobile oculto) */
   .related-mobile { display: none !important; }
   .related-desktop { display: grid; }
+}
+
+/* ========== Mobile-only polish (2026-08-04m) ========== */
+
+/* Layout noticias: desktop grilla / móvil 1+4+1+4 */
+.news-layout-mobile { display: none; }
+.news-layout-desktop { display: grid; }
+.news-layout-mobile .feed-featured { margin-bottom: .55rem; }
+.news-layout-mobile .feed-news-grid { margin-bottom: .85rem; }
+
+/* Select categoría/zona (solo teléfono) */
+.mobile-cat-selects { display: none; }
+.mobile-cat-select {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin-bottom: .55rem;
+}
+.mobile-cat-select-label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mobile-cat-select-input {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: .75rem 2.4rem .75rem .9rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--input-bg)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23EB7C2B' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right .85rem center / 12px;
+  color: var(--fg);
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 600;
+  min-height: 48px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+}
+.mobile-cat-select-input:focus {
+  outline: 2px solid rgba(235, 124, 43, 0.45);
+  outline-offset: 1px;
+  border-color: var(--color-naranjo);
+}
+
+/* Rotación partidos home */
+.feed-matches--rotate {
+  position: relative;
+  min-height: 5.5rem;
+}
+.feed-match-slide[hidden] { display: none !important; }
+.feed-match-slide.is-active {
+  display: block;
+  animation: feed-match-in .35s ease;
+}
+@keyframes feed-match-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .feed-match-slide.is-active { animation: none; }
+}
+
+@media (max-width: 767px) {
+  /* Ticker: solo achicar la etiqueta (Próximos / Goleadores / Resultados) */
+  .site-ticker-label {
+    font-size: .52rem;
+    padding: 0 .55rem;
+    letter-spacing: .1em;
+    max-width: 4.6rem;
+    white-space: normal;
+    line-height: 1.15;
+    text-align: center;
+    justify-content: center;
+  }
+  .site-ticker-item {
+    font-size: .72rem;
+    padding: 0 .85rem;
+    gap: .3rem;
+  }
+  .site-ticker-crest {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Noticias categorías: patrón 1 grande + 4 */
+  .news-layout-desktop { display: none !important; }
+  .news-layout-mobile { display: block !important; }
+
+  /* Select en lugar de pills */
+  .mobile-cat-selects { display: block; }
+  .desktop-only-nav { display: none !important; }
+
+  /* Contenedor más ceñido al viewport */
+  .section > .container {
+    width: min(100% - 1rem, var(--max));
+    padding-inline: 0;
+  }
+  .section {
+    padding-top: 1.1rem;
+    padding-bottom: 2rem;
+  }
+  .section-head h1 {
+    font-size: 1.55rem;
+  }
+  .page-intro {
+    font-size: .9rem;
+    margin-bottom: .85rem;
+  }
+
+  /* Tablas: caben en pantalla (goleadores prioritario) */
+  .table-wrap {
+    margin-inline: 0;
+    border: 1px solid var(--border);
+    background: var(--card-elevated);
+  }
+  .table-wrap--fit,
+  .table-goleadores {
+    overflow-x: visible;
+  }
+  .data-table,
+  .data-table--fit {
+    min-width: 0 !important;
+    width: 100%;
+    table-layout: fixed;
+  }
+  .data-table th,
+  .data-table td {
+    padding: .5rem .35rem;
+    font-size: .8rem;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+  }
+  .data-table th.col-pos,
+  .data-table td.col-pos {
+    width: 2rem;
+    padding-left: .4rem;
+  }
+  .data-table th.col-club-ico,
+  .data-table td.cell-club-ico {
+    width: 2.6rem;
+    text-align: center;
+  }
+  .data-table .col-pts,
+  .data-table td.num {
+    width: 2.4rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .player-name-link,
+  .player-name {
+    font-size: .82rem;
+    line-height: 1.25;
+  }
+  .club-crest-only {
+    width: 30px;
+    height: 30px;
+  }
+  .club-crest-only img {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Posiciones: columnas esenciales en móvil */
+  .data-table--standings th:nth-child(4),
+  .data-table--standings td:nth-child(4),
+  .data-table--standings th:nth-child(5),
+  .data-table--standings td:nth-child(5),
+  .data-table--standings th:nth-child(6),
+  .data-table--standings td:nth-child(6),
+  .data-table--standings th:nth-child(7),
+  .data-table--standings td:nth-child(7),
+  .data-table--standings th:nth-child(8),
+  .data-table--standings td:nth-child(8),
+  .data-table--standings th:nth-child(11),
+  .data-table--standings td:nth-child(11) {
+    display: none;
+  }
+  /* # Club PJ DG Pts */
+  .data-table--standings th:nth-child(3),
+  .data-table--standings td:nth-child(3),
+  .data-table--standings th:nth-child(9),
+  .data-table--standings td:nth-child(9),
+  .data-table--standings th:nth-child(10),
+  .data-table--standings td:nth-child(10) {
+    width: 2.6rem;
+    text-align: center;
+  }
+  .data-table--standings .club-cell-name {
+    font-size: .78rem;
+  }
+  .data-table--standings .badge-clasifica {
+    display: none;
+  }
+  .club-cell--table {
+    gap: .35rem;
+  }
+  .club-mini {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  /* Programación más compacta */
+  .data-table--programacion th:nth-child(1),
+  .data-table--programacion td:nth-child(1) {
+    width: 3.2rem;
+    font-size: .72rem;
+  }
+  .data-table--programacion th:nth-child(2),
+  .data-table--programacion td:nth-child(2) {
+    width: 2.6rem;
+  }
+  .data-table--programacion th:nth-child(5),
+  .data-table--programacion td:nth-child(5) {
+    font-size: .72rem;
+  }
+  .data-table--programacion .club-cell-name {
+    font-size: .75rem;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Subnav sticky más liviano en móvil */
+  .subnav-sticky {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding-left: .5rem;
+    padding-right: .5rem;
+  }
+  .cat-tools {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: .35rem;
+    margin-bottom: .65rem;
+  }
+  .cat-tool {
+    flex-shrink: 0;
+    font-size: .78rem;
+    padding: .35rem .7rem;
+  }
+
+  /* Buscador: filtros apilados */
+  .search-panel-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-filters {
+    grid-template-columns: 1fr;
+  }
+  .search-input-lg {
+    width: 100%;
+  }
+
+  /* Home feed: un poco más de aire y ancho útil */
+  .feed-inner {
+    width: min(100% - .85rem, 480px);
+  }
+  .feed-featured-title {
+    font-size: 1rem;
+  }
+  .feed-grid-card-title {
+    font-size: .78rem;
+    -webkit-line-clamp: 3;
+  }
+  .feed-match-team {
+    font-size: .72rem;
+  }
+  .feed-match-team img {
+    width: 28px;
+    height: 28px;
+  }
+  .feed-match-score {
+    font-size: .95rem;
+  }
+
+  /* Header más compacto en móvil (énfasis en contenido) */
+  .logo-text strong {
+    font-size: .9rem;
+  }
+  .logo-text .logo-tagline {
+    font-size: .62rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .news-layout-mobile { display: none !important; }
+  .news-layout-desktop { display: grid; }
+  .mobile-cat-selects { display: none !important; }
+  .desktop-only-nav { display: flex; }
+  .desktop-only-nav.cat-pills,
+  .desktop-only-nav.chip-row,
+  .desktop-only-nav.grupo-jump,
+  .desktop-only-nav.div-tabs {
+    display: flex;
+  }
+}
+
+/* Pantallas muy angostas */
+@media (max-width: 379px) {
+  .site-ticker-label {
+    font-size: .48rem;
+    max-width: 3.8rem;
+    padding: 0 .4rem;
+  }
+  .data-table th,
+  .data-table td {
+    padding: .4rem .25rem;
+    font-size: .74rem;
+  }
+  .feed-grid-card-title {
+    font-size: .74rem;
+  }
 }
