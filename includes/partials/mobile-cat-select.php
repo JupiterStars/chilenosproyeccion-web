@@ -19,11 +19,7 @@ $fechaParam = $fechaParam ?? null;
 $buildUrl = static function (string $slug, string $grupo = '') use ($basePath, $fechaParam): string {
     $url = app_url('/' . $basePath . '/' . $slug);
     $q = [];
-    // Posiciones: zonas van a ancla de sección (no ?grupo)
-    if ($grupo !== '' && $basePath === 'posiciones') {
-        return $url . '#sec-' . rawurlencode($grupo);
-    }
-    if ($grupo !== '' && $basePath === 'goleadores') {
+    if ($grupo !== '' && ($basePath === 'goleadores' || $basePath === 'posiciones')) {
         $q['grupo'] = $grupo;
     }
     if ($fechaParam && $basePath === 'programacion') {
@@ -31,6 +27,10 @@ $buildUrl = static function (string $slug, string $grupo = '') use ($basePath, $
     }
     if ($q) {
         $url .= '?' . http_build_query($q);
+    }
+    // Ancla al inicio del bloque de zona (JS corrige el offset sticky)
+    if ($grupo !== '' && ($basePath === 'goleadores' || $basePath === 'posiciones')) {
+        $url .= '#sec-' . rawurlencode($grupo);
     }
     return $url;
 };
@@ -59,28 +59,18 @@ $buildUrl = static function (string $slug, string $grupo = '') use ($basePath, $
     <label class="mobile-cat-select">
       <span class="mobile-cat-select-label">Zona / grupo</span>
       <select class="mobile-cat-select-input" data-nav-select aria-label="Elegir zona o grupo">
-        <?php if ($basePath === 'posiciones'): ?>
-          <option value="<?= e($buildUrl($cat) . '#top') ?>" selected>Elegir zona…</option>
-          <?php foreach ($gruposNav as $sec): ?>
-            <?php $key = (string) ($sec['key'] ?? ''); ?>
-            <option value="<?= e('#sec-' . $key) ?>">
-              <?= e((string) ($sec['corto'] ?? $sec['label'] ?? $key)) ?>
-            </option>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <option value="<?= e($buildUrl($cat)) ?>" <?= $grupoParam === '' ? 'selected' : '' ?>>
-            Todas las zonas
+        <option value="<?= e($buildUrl($cat)) ?>" <?= $grupoParam === '' ? 'selected' : '' ?>>
+          Todas las zonas
+        </option>
+        <?php foreach ($gruposNav as $sec): ?>
+          <?php $key = (string) ($sec['key'] ?? ''); ?>
+          <option
+            value="<?= e($buildUrl($cat, $key)) ?>"
+            <?= $grupoParam === $key ? 'selected' : '' ?>
+          >
+            <?= e((string) ($sec['corto'] ?? $sec['label'] ?? $key)) ?>
           </option>
-          <?php foreach ($gruposNav as $sec): ?>
-            <?php $key = (string) ($sec['key'] ?? ''); ?>
-            <option
-              value="<?= e($buildUrl($cat, $key)) ?>"
-              <?= $grupoParam === $key ? 'selected' : '' ?>
-            >
-              <?= e((string) ($sec['corto'] ?? $sec['label'] ?? $key)) ?>
-            </option>
-          <?php endforeach; ?>
-        <?php endif; ?>
+        <?php endforeach; ?>
       </select>
     </label>
   <?php endif; ?>

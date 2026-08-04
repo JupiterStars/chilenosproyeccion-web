@@ -1,5 +1,5 @@
 <?php
-/** Fila compacta: thumb + título + tiempo @var array $n */
+/** Fila compacta: thumb + título + tiempo + CTA @var array $n */
 $n = $n ?? $noticia ?? [];
 $url = app_url('/noticia/' . ($n['slug'] ?? ''));
 $img = noticia_img_url($n);
@@ -15,6 +15,7 @@ $tiempo = format_tiempo_relativo($n['fecha_publicacion'] ?? null);
       <?php if ($tiempo !== ''): ?>
         <p class="feed-time"><?= e($tiempo) ?></p>
       <?php endif; ?>
+      <span class="feed-cta feed-cta--inline">Leer →</span>
     </div>
   </a>
 </article>

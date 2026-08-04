@@ -1436,8 +1436,21 @@ img[src*="/assets/escudos/"] {
   background: rgba(235, 124, 43, 0.12);
   box-shadow: inset 0 0 0 1px rgba(235, 124, 43, 0.25);
 }
-.standings-block {
-  scroll-margin-top: 5.5rem;
+/* Anclas de zona: compensar header + ticker + subnav (no aterrizar a mitad de tabla) */
+.standings-block,
+.section-scroll-target,
+[id^="sec-"] {
+  scroll-margin-top: calc(var(--header-h) + var(--ticker-h) + 10.5rem);
+}
+.standings-block.is-target-zone .standings-block-head h2 {
+  color: var(--color-naranjo);
+}
+@media (max-width: 767px) {
+  .standings-block,
+  .section-scroll-target,
+  [id^="sec-"] {
+    scroll-margin-top: calc(var(--header-h) + var(--ticker-h) + 12.5rem);
+  }
 }
 
 /* Programación: divisiones + fechas */
@@ -2939,6 +2952,54 @@ html[data-theme="dark"] .feed-card {
 .feed-scorers-name a {
   color: inherit;
   font-weight: 600;
+}
+
+/* CTAs en tarjetas de noticias */
+.feed-card-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  padding: 0 1rem 1rem;
+}
+.feed-cta {
+  display: inline-flex;
+  align-items: center;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: .4rem .85rem;
+  line-height: 1.2;
+}
+.feed-cta--primary {
+  background: var(--color-naranjo);
+  color: #000;
+  border: 1px solid var(--color-naranjo);
+}
+.feed-cta--ghost {
+  background: transparent;
+  color: var(--color-naranjo);
+  border: 1px solid rgba(235, 124, 43, 0.55);
+}
+.feed-cta--inline {
+  display: inline-block;
+  margin-top: .35rem;
+  padding: 0;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--color-naranjo);
+  border-radius: 0;
+}
+.feed-featured .feed-card-ctas {
+  border-top: 0;
+}
+.news-card-cta {
+  margin-top: .55rem;
+}
+.feed-grid-card-body .feed-cta--inline,
+.feed-row-body .feed-cta--inline {
+  margin-top: .3rem;
 }
 
 @media (max-width: 767px) {

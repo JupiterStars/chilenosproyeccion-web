@@ -133,7 +133,15 @@ require INCLUDES_PATH . '/header.php';
       <?php endif; ?>
     </div>
 
-    <div class="table-wrap table-wrap--fit table-goleadores">
+    <?php
+      // Ancla de zona: el menú usa #sec-{grupo}; sin grupo → #sec-tabla
+      $tablaAnchor = $grupoParam !== '' ? $grupoParam : 'tabla';
+    ?>
+    <div
+      class="table-wrap table-wrap--fit table-goleadores section-scroll-target"
+      id="sec-<?= e($tablaAnchor) ?>"
+      data-zone="<?= e($tablaAnchor) ?>"
+    >
       <table class="data-table data-table--fit data-table--goleadores">
         <thead>
           <tr>

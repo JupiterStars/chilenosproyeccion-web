@@ -75,7 +75,7 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804n" />
+  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804o" />
 </head>
 <body class="<?= e($bodyClass) ?>">
   <!-- Google Tag Manager (noscript) -->
@@ -272,7 +272,8 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
                       <div class="mobile-acc-nested-body">
                         <a href="<?= e(app_url('/futbol-joven/' . $item['slug'])) ?>">Noticias · todas</a>
                         <?php foreach ($itemSecs as $sec): ?>
-                          <a href="<?= e(app_url('/posiciones/' . $item['slug'] . '#sec-' . ($sec['key'] ?? ''))) ?>">
+                          <?php $zKey = (string) ($sec['key'] ?? ''); ?>
+                          <a href="<?= e(app_url('/posiciones/' . $item['slug'] . '?grupo=' . rawurlencode($zKey) . '#sec-' . rawurlencode($zKey))) ?>">
                             <?= e((string) ($sec['corto'] ?? $sec['label'] ?? '')) ?>
                           </a>
                         <?php endforeach; ?>
@@ -350,12 +351,10 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
                             <?php foreach ($secs as $sec): ?>
                               <?php
                                 $key = (string) ($sec['key'] ?? '');
-                                $href = app_url('/' . $tabla['path'] . '/' . $slug);
-                                if ($tabla['path'] === 'goleadores') {
-                                    $href .= '?grupo=' . rawurlencode($key);
-                                } else {
-                                    $href .= '#sec-' . rawurlencode($key);
-                                }
+                                // Siempre ?grupo= + ancla al inicio del bloque (scroll corregido por JS)
+                                $href = app_url('/' . $tabla['path'] . '/' . $slug)
+                                    . '?grupo=' . rawurlencode($key)
+                                    . '#sec-' . rawurlencode($key);
                               ?>
                               <a href="<?= e($href) ?>"><?= e((string) ($sec['corto'] ?? $sec['label'] ?? $key)) ?></a>
                             <?php endforeach; ?>

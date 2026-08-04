@@ -5,6 +5,7 @@ require_once (is_file(__DIR__ . '/includes/bootstrap.php')
     : dirname(__DIR__) . '/includes/bootstrap.php');
 
 $cat = strtolower(trim($_GET['categoria'] ?? 'sub-20')) ?: 'sub-20';
+$grupoParam = strtolower(trim($_GET['grupo'] ?? ''));
 $etiqueta = categoria_etiqueta($cat);
 $reglas = reglas_clasificacion($cat);
 $secciones = categoria_secciones($cat);
@@ -57,6 +58,28 @@ if (count($secciones) > 1 || (isset($secciones[0]['key']) && $secciones[0]['key'
 
 $multi = count($bloques) > 1;
 
+// Validar zona y poner el bloque pedido primero (evita aterrizar a mitad de otra tabla)
+$grupoKeys = [];
+foreach ($bloques as $b) {
+    $grupoKeys[] = (string) ($b['sec']['key'] ?? '');
+}
+if ($grupoParam !== '' && !in_array($grupoParam, $grupoKeys, true)) {
+    $grupoParam = '';
+}
+if ($grupoParam !== '' && count($bloques) > 1) {
+    usort($bloques, static function (array $a, array $b) use ($grupoParam): int {
+        $ka = (string) ($a['sec']['key'] ?? '');
+        $kb = (string) ($b['sec']['key'] ?? '');
+        if ($ka === $grupoParam) {
+            return -1;
+        }
+        if ($kb === $grupoParam) {
+            return 1;
+        }
+        return 0;
+    });
+}
+
 $pageTitle = 'Posiciones ' . $etiqueta['titulo'] . ' | ChilenosProyección';
 $metaDescription = 'Tabla de posiciones — ' . $etiqueta['titulo'];
 $navActive = 'posiciones';
@@ -105,8 +128,12 @@ require INCLUDES_PATH . '/header.php';
       <?php if ($multi): ?>
         <div class="grupo-jump desktop-only-nav" role="navigation" aria-label="Ir a grupo">
           <?php foreach ($bloques as $bloque): ?>
-            <?php $sec = $bloque['sec']; ?>
-            <a class="grupo-jump-btn" href="#sec-<?= e($sec['key'] ?? 'unica') ?>">
+            <?php
+              $sec = $bloque['sec'];
+              $sKey = (string) ($sec['key'] ?? 'unica');
+              $gHref = app_url('/posiciones/' . $cat . '?grupo=' . rawurlencode($sKey) . '#sec-' . rawurlencode($sKey));
+            ?>
+            <a class="grupo-jump-btn<?= $grupoParam === $sKey ? ' is-active' : '' ?>" href="<?= e($gHref) ?>">
               <strong><?= e($sec['iniciales'] ?? '') ?></strong>
               <span><?= e($sec['corto'] ?? $sec['label'] ?? '') ?></span>
             </a>
@@ -121,7 +148,15 @@ require INCLUDES_PATH . '/header.php';
         $filas = $bloque['filas'];
         $badgeLabel = (string) ($reglas['badge'] ?? 'Clasifica');
       ?>
-      <div class="standings-block" id="sec-<?= e($sec['key'] ?? 'unica') ?>">
+      <?php
+        $secKey = (string) ($sec['key'] ?? 'unica');
+        $isTarget = $grupoParam !== '' && $grupoParam === $secKey;
+      ?>
+      <div
+        class="standings-block<?= $isTarget ? ' is-target-zone' : '' ?>"
+        id="sec-<?= e($secKey) ?>"
+        data-zone="<?= e($secKey) ?>"
+      >
         <?php if ($multi): ?>
           <div class="standings-block-head">
             <h2>

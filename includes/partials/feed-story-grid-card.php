@@ -1,5 +1,5 @@
 <?php
-/** Card compacta para grilla 2×2 en móvil @var array $n */
+/** Card compacta para grilla 2×2 en móvil + CTA @var array $n */
 $n = $n ?? $noticia ?? [];
 $url = app_url('/noticia/' . ($n['slug'] ?? ''));
 $img = noticia_img_url($n);
@@ -19,6 +19,7 @@ $cat = $n['categoria_nombre'] ?? '';
       <?php if ($tiempo !== ''): ?>
         <p class="feed-time"><?= e($tiempo) ?></p>
       <?php endif; ?>
+      <span class="feed-cta feed-cta--inline">Leer →</span>
     </div>
   </a>
 </article>

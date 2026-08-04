@@ -211,85 +211,68 @@ require INCLUDES_PATH . '/header.php';
         <a class="feed-ver-todo" href="<?= e(app_url('/futbol-joven')) ?>">Ver todo</a>
       </header>
       <?php
+        // Tras grid 4 → Resultados; tras 2 grandes → Próximos
+        $newsFeedInserts = [
+            'after_grid4' => static function () use ($resultadosPages): void {
+                if (!$resultadosPages) {
+                    return;
+                }
+                $matchPages = $resultadosPages;
+                $matchTitle = 'Resultados';
+                $matchSubtitle = 'Últimos partidos';
+                $matchBadge = 'R';
+                $matchBadgeClass = 'feed-section-badge--rojo';
+                $matchVerTodo = app_url('/posiciones/sub-20');
+                $matchLigaSuffix = ' · Final';
+                $matchIsResultado = true;
+                require INCLUDES_PATH . '/partials/feed-match-section.php';
+            },
+            'after_two_large' => static function () use ($proximosPages): void {
+                if (!$proximosPages) {
+                    return;
+                }
+                $matchPages = $proximosPages;
+                $matchTitle = 'Próximos';
+                $matchSubtitle = 'Formativas ANFP';
+                $matchBadge = 'P';
+                $matchBadgeClass = '';
+                $matchVerTodo = app_url('/programacion/sub-20');
+                $matchLigaSuffix = ' · Próximo';
+                $matchIsResultado = false;
+                require INCLUDES_PATH . '/partials/feed-match-section.php';
+            },
+        ];
         $noticias = $noticiasHome;
         require INCLUDES_PATH . '/partials/news-feed-pattern.php';
       ?>
-    <?php endif; ?>
-
-    <?php if ($proximosPages): ?>
-      <header class="feed-section-head">
-        <div class="feed-section-brand">
-          <div class="feed-section-badge">P</div>
-          <div>
-            <strong>Próximos</strong>
-            <span>Formativas ANFP</span>
-          </div>
-        </div>
-        <a class="feed-ver-todo" href="<?= e(app_url('/programacion/sub-20')) ?>">Ver todo</a>
-      </header>
-      <div
-        class="feed-matches<?= count($proximosPages) > 1 ? ' feed-matches--rotate' : '' ?>"
-        <?= count($proximosPages) > 1 ? 'data-match-rotate data-interval="4000"' : '' ?>
-      >
-        <?php foreach ($proximosPages as $pi => $page): ?>
-          <div class="feed-match-slide<?= $pi === 0 ? ' is-active' : '' ?>" data-match-slide <?= $pi === 0 ? '' : 'hidden' ?>>
-            <div class="feed-matches-page">
-              <?php foreach ($page as $p): ?>
-                <?php
-                  $match = [
-                      'local' => $p['club_local'] ?? '',
-                      'visita' => $p['club_visita'] ?? '',
-                      'escudo_local' => $p['escudo_local'] ?? '',
-                      'escudo_visita' => $p['escudo_visita'] ?? '',
-                      'hora' => $p['cuando'] ?? 'vs',
-                      'liga' => ($p['categoria'] ?? 'Sub-20') . ' · Próximo',
-                      'href' => app_url('/programacion/sub-20'),
-                  ];
-                  require INCLUDES_PATH . '/partials/feed-match-card.php';
-                ?>
-              <?php endforeach; ?>
-            </div>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    <?php endif; ?>
-
-    <?php if ($resultadosPages): ?>
-      <header class="feed-section-head">
-        <div class="feed-section-brand">
-          <div class="feed-section-badge feed-section-badge--rojo">R</div>
-          <div>
-            <strong>Resultados</strong>
-            <span>Últimos partidos</span>
-          </div>
-        </div>
-        <a class="feed-ver-todo" href="<?= e(app_url('/posiciones/sub-20')) ?>">Ver todo</a>
-      </header>
-      <div
-        class="feed-matches<?= count($resultadosPages) > 1 ? ' feed-matches--rotate' : '' ?>"
-        <?= count($resultadosPages) > 1 ? 'data-match-rotate data-interval="4000"' : '' ?>
-      >
-        <?php foreach ($resultadosPages as $ri => $page): ?>
-          <div class="feed-match-slide<?= $ri === 0 ? ' is-active' : '' ?>" data-match-slide <?= $ri === 0 ? '' : 'hidden' ?>>
-            <div class="feed-matches-page">
-              <?php foreach ($page as $r): ?>
-                <?php
-                  $match = [
-                      'local' => $r['club_local'] ?? '',
-                      'visita' => $r['club_visita'] ?? '',
-                      'escudo_local' => $r['escudo_local'] ?? '',
-                      'escudo_visita' => $r['escudo_visita'] ?? '',
-                      'score' => $r['score'] ?? '',
-                      'liga' => ($r['categoria'] ?? '') . ' · Final',
-                      'href' => app_url('/posiciones/sub-20'),
-                  ];
-                  require INCLUDES_PATH . '/partials/feed-match-card.php';
-                ?>
-              <?php endforeach; ?>
-            </div>
-          </div>
-        <?php endforeach; ?>
-      </div>
+    <?php else: ?>
+      <?php /* Sin noticias: igual mostramos partidos */ ?>
+      <?php if ($resultadosPages): ?>
+        <?php
+          $matchPages = $resultadosPages;
+          $matchTitle = 'Resultados';
+          $matchSubtitle = 'Últimos partidos';
+          $matchBadge = 'R';
+          $matchBadgeClass = 'feed-section-badge--rojo';
+          $matchVerTodo = app_url('/posiciones/sub-20');
+          $matchLigaSuffix = ' · Final';
+          $matchIsResultado = true;
+          require INCLUDES_PATH . '/partials/feed-match-section.php';
+        ?>
+      <?php endif; ?>
+      <?php if ($proximosPages): ?>
+        <?php
+          $matchPages = $proximosPages;
+          $matchTitle = 'Próximos';
+          $matchSubtitle = 'Formativas ANFP';
+          $matchBadge = 'P';
+          $matchBadgeClass = '';
+          $matchVerTodo = app_url('/programacion/sub-20');
+          $matchLigaSuffix = ' · Próximo';
+          $matchIsResultado = false;
+          require INCLUDES_PATH . '/partials/feed-match-section.php';
+        ?>
+      <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($goleadoresSlides): ?>

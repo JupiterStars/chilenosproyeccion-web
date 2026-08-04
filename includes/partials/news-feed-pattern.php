@@ -1,15 +1,36 @@
 <?php
 /**
  * Patrón móvil de noticias (ciclo):
- *  1 grande → 4 filas (thumb+título) → 2 lado a lado → grilla 4 (2×2) → 2 grandes → repite
+ *  1 grande → 4 filas → 2 lado a lado → grilla 4 (2×2) → 2 grandes → repite
+ *
+ * Inserts opcionales (HTML string o callable) entre bloques del primer ciclo:
+ *  $newsFeedInserts = [
+ *    'after_grid4' => '...',      // tras la grilla 2×2
+ *    'after_two_large' => '...',  // tras las 2 noticias grandes
+ *  ];
+ *
  * Desktop: grilla clásica de cards.
  *
  * @var list<array<string,mixed>> $noticias
+ * @var array<string, mixed> $newsFeedInserts
  */
 $noticias = array_values($noticias ?? []);
+$newsFeedInserts = $newsFeedInserts ?? [];
 if (!$noticias) {
     return;
 }
+
+$renderInsert = static function (string $key) use ($newsFeedInserts): void {
+    if (empty($newsFeedInserts[$key])) {
+        return;
+    }
+    $v = $newsFeedInserts[$key];
+    if (is_callable($v)) {
+        $v();
+        return;
+    }
+    echo (string) $v;
+};
 ?>
 <?php /* Desktop / tablet: grilla habitual */ ?>
 <div class="news-layout-desktop card-grid featured">
@@ -25,13 +46,15 @@ if (!$noticias) {
     $total = count($noticias);
     // Ciclo: featured1, rows4, pair2, grid4, featured2
     $cycle = [
-        ['type' => 'featured', 'n' => 1],
-        ['type' => 'rows', 'n' => 4],
-        ['type' => 'pair', 'n' => 2],
-        ['type' => 'grid4', 'n' => 4],
-        ['type' => 'featured', 'n' => 2],
+        ['type' => 'featured', 'n' => 1, 'slot' => 'featured1'],
+        ['type' => 'rows', 'n' => 4, 'slot' => 'rows'],
+        ['type' => 'pair', 'n' => 2, 'slot' => 'pair'],
+        ['type' => 'grid4', 'n' => 4, 'slot' => 'grid4'],
+        ['type' => 'featured', 'n' => 2, 'slot' => 'two_large'],
     ];
     $step = 0;
+    $didAfterGrid4 = false;
+    $didAfterTwoLarge = false;
     while ($i < $total):
         $block = $cycle[$step % count($cycle)];
         $step++;
@@ -42,6 +65,7 @@ if (!$noticias) {
         $batch = array_slice($noticias, $i, $take);
         $i += $take;
         $type = $block['type'];
+        $slot = $block['slot'];
 
         if ($type === 'featured'):
             foreach ($batch as $n) {
@@ -72,6 +96,30 @@ if (!$noticias) {
     </div>
   <?php
         endif;
+
+        // Inserts del home: solo en el primer ciclo
+        if ($step <= count($cycle)) {
+            if ($slot === 'grid4') {
+                $renderInsert('after_grid4');
+                $didAfterGrid4 = true;
+            }
+            if ($slot === 'two_large') {
+                $renderInsert('after_two_large');
+                $didAfterTwoLarge = true;
+            }
+        }
     endwhile;
+
+    // Si no hubo suficientes noticias para llegar al slot, igual mostrar inserts
+    if (!$didAfterGrid4) {
+        $renderInsert('after_grid4');
+    }
+    if (!$didAfterTwoLarge) {
+        $renderInsert('after_two_large');
+    }
   ?>
 </div>
+<?php
+// Limpiar inserts para no filtrar a otro require en la misma request
+$newsFeedInserts = [];
+?>

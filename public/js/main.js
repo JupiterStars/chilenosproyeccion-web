@@ -57,6 +57,7 @@
     initMatchRotate();
     initScorersRotate();
     initNavSelects();
+    initSectionScroll();
   });
 
   /** Alterna logo Fútbol Joven (naranja) y Futbolistas Chilenos (rojo) cada 5s + textos */
@@ -480,14 +481,80 @@
         var val = sel.value || "";
         if (!val || val === "#top") return;
         if (val.charAt(0) === "#") {
-          var el = document.querySelector(val);
-          if (el) {
-            el.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
+          scrollToSectionId(val.slice(1), true);
           return;
         }
         window.location.href = val;
       });
+    });
+  }
+
+  /**
+   * Scroll a #sec-zona dejando espacio para header + ticker + subnav sticky.
+   * Evita aterrizar a mitad de la tabla (p. ej. puesto 5 de otra zona).
+   */
+  function stickyOffset() {
+    var h = 12;
+    var tickers = document.querySelector(".site-tickers");
+    var header = document.querySelector(".site-header");
+    var subnav = document.querySelector(".subnav-sticky");
+    if (tickers) h += tickers.offsetHeight || 0;
+    if (header) h += header.offsetHeight || 0;
+    if (subnav) h += subnav.offsetHeight || 0;
+    // holgura extra en móvil (subnav multi-línea)
+    if (window.matchMedia && window.matchMedia("(max-width: 767px)").matches) {
+      h += 16;
+    }
+    return h;
+  }
+
+  function scrollToSectionId(id, smooth) {
+    if (!id) return false;
+    var el = document.getElementById(id);
+    if (!el) return false;
+    var y = el.getBoundingClientRect().top + window.pageYOffset - stickyOffset();
+    window.scrollTo({
+      top: Math.max(0, y),
+      behavior: smooth ? "smooth" : "auto",
+    });
+    return true;
+  }
+
+  function initSectionScroll() {
+    function go(smooth) {
+      var hash = window.location.hash || "";
+      if (!hash || hash.length < 2) {
+        // ?grupo=sin hash: ir al bloque de zona si existe
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var g = params.get("grupo");
+          if (g) {
+            scrollToSectionId("sec-" + g, smooth);
+          }
+        } catch (e) {}
+        return;
+      }
+      var id = decodeURIComponent(hash.replace(/^#/, ""));
+      // doble rAF: tras layout de sticky
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          scrollToSectionId(id, smooth);
+        });
+      });
+    }
+
+    // Carga inicial: sin smooth (más preciso)
+    go(false);
+    // Reajustar tras fuentes/imágenes
+    window.setTimeout(function () {
+      go(false);
+    }, 120);
+    window.setTimeout(function () {
+      go(false);
+    }, 400);
+
+    window.addEventListener("hashchange", function () {
+      go(true);
     });
   }
 })();

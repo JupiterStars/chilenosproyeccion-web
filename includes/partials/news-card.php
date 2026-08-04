@@ -20,6 +20,7 @@ $cat = $n['categoria_nombre'] ?? 'Noticia';
         <p><?= e($n['extracto']) ?></p>
       <?php endif; ?>
       <div class="meta"><?= e(format_fecha($n['fecha_publicacion'] ?? null)) ?></div>
+      <span class="feed-cta feed-cta--inline news-card-cta">Leer noticia →</span>
     </div>
   </a>
 </article>
