@@ -20,6 +20,254 @@ function e(?string $value): string
     return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+/**
+ * Cabeceras HTTP de endurecimiento (compatibles con GTM, AdSense, Clarity, Swiper, fonts).
+ */
+function send_security_headers(): void
+{
+    if (headers_sent()) {
+        return;
+    }
+
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+    header('Cross-Origin-Opener-Policy: same-origin-allow-popups');
+
+    // CSP: allowlist de terceros ya usados en header.php / GTM
+    $csp = implode('; ', [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://www.clarity.ms https://scripts.clarity.ms https://cdn.jsdelivr.net https://tracker.metricool.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+        "font-src 'self' https://fonts.gstatic.com data:",
+        "img-src 'self' data: blob: https: http:",
+        "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.clarity.ms https://*.clarity.ms https://pagead2.googlesyndication.com https://tracker.metricool.com https://*.metricool.com",
+        "frame-src https://www.googletagmanager.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com",
+    ]);
+    header('Content-Security-Policy: ' . $csp);
+
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443)
+        || (strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https');
+    if ($https) {
+        header('Strict-Transport-Security: max-age=15552000; includeSubDomains');
+    }
+}
+
+/**
+ * IP cliente (respeta un proxy confiable tipo Cloudflare/HostGator).
+ */
+function client_ip(): string
+{
+    $candidates = [
+        $_SERVER['HTTP_CF_CONNECTING_IP'] ?? null,
+        $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null,
+        $_SERVER['REMOTE_ADDR'] ?? null,
+    ];
+    foreach ($candidates as $raw) {
+        if (!is_string($raw) || $raw === '') {
+            continue;
+        }
+        // X-Forwarded-For puede ser lista
+        $ip = trim(explode(',', $raw)[0]);
+        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+            return $ip;
+        }
+    }
+    return '0.0.0.0';
+}
+
+/**
+ * Rate limit simple en disco (sin Redis). true = permitido.
+ */
+function rate_limit_allow(string $bucket, int $max, int $windowSeconds): bool
+{
+    $dir = ROOT_PATH . '/storage/rate_limit';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0700, true);
+    }
+    if (!is_dir($dir) || !is_writable($dir)) {
+        // Si no hay storage, no tumbar el sitio
+        return true;
+    }
+
+    $file = $dir . '/' . hash('sha256', $bucket) . '.json';
+    $now = time();
+    $data = ['start' => $now, 'count' => 0];
+
+    $fp = @fopen($file, 'c+');
+    if ($fp === false) {
+        return true;
+    }
+
+    try {
+        flock($fp, LOCK_EX);
+        $raw = stream_get_contents($fp);
+        if (is_string($raw) && $raw !== '') {
+            $decoded = json_decode($raw, true);
+            if (is_array($decoded) && isset($decoded['start'], $decoded['count'])) {
+                $data = $decoded;
+            }
+        }
+        if (($now - (int) $data['start']) >= $windowSeconds) {
+            $data = ['start' => $now, 'count' => 0];
+        }
+        $data['count'] = (int) $data['count'] + 1;
+        $allowed = $data['count'] <= $max;
+        ftruncate($fp, 0);
+        rewind($fp);
+        fwrite($fp, json_encode($data));
+        fflush($fp);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        return $allowed;
+    } catch (Throwable $e) {
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        return true;
+    }
+}
+
+/**
+ * Sanitiza HTML editorial (noticias/entrevistas): quita script/eventos, allowlist de tags/attrs.
+ * No rompe markup básico de artículos.
+ */
+function sanitize_html(?string $html): string
+{
+    if ($html === null || $html === '') {
+        return '';
+    }
+
+    $allowedTags = '<p><br><strong><b><em><i><u><a><ul><ol><li><h2><h3><h4><blockquote><figure><figcaption><img><span><div><hr><table><thead><tbody><tr><th><td>';
+    $html = strip_tags($html, $allowedTags);
+
+    // Sin DOM: strip handlers y javascript:
+    if (!class_exists('DOMDocument')) {
+        $html = preg_replace('/\s+on[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $html) ?? $html;
+        $html = preg_replace('/\s*(href|src)\s*=\s*([\'"]?)\s*javascript:[^\'"\s>]*/i', ' $1=$2#', $html) ?? $html;
+        return $html;
+    }
+
+    $prev = libxml_use_internal_errors(true);
+    $dom = new DOMDocument('1.0', 'UTF-8');
+    $wrapped = '<div id="cp-sanitize-root">' . $html . '</div>';
+    // force UTF-8
+    $dom->loadHTML('<?xml encoding="UTF-8">' . $wrapped, LIBXML_HTML_NODEFDTD);
+
+    $allowed = [
+        'p' => [],
+        'br' => [],
+        'hr' => [],
+        'strong' => [],
+        'b' => [],
+        'em' => [],
+        'i' => [],
+        'u' => [],
+        'ul' => [],
+        'ol' => [],
+        'li' => [],
+        'h2' => [],
+        'h3' => [],
+        'h4' => [],
+        'blockquote' => [],
+        'figure' => [],
+        'figcaption' => [],
+        'span' => ['class'],
+        'div' => ['class'],
+        'table' => [],
+        'thead' => [],
+        'tbody' => [],
+        'tr' => [],
+        'th' => [],
+        'td' => [],
+        'a' => ['href', 'title', 'rel', 'target'],
+        'img' => ['src', 'alt', 'width', 'height', 'loading', 'class'],
+    ];
+
+    $xpath = new DOMXPath($dom);
+    $nodes = $xpath->query('//*');
+    if ($nodes) {
+        /** @var DOMElement $el */
+        foreach (iterator_to_array($nodes) as $el) {
+            if (!$el instanceof DOMElement) {
+                continue;
+            }
+            $tag = strtolower($el->tagName);
+            if ($tag === 'html' || $tag === 'body' || $el->getAttribute('id') === 'cp-sanitize-root') {
+                continue;
+            }
+            if (!isset($allowed[$tag])) {
+                // unwrap: keep children text
+                $parent = $el->parentNode;
+                if ($parent) {
+                    while ($el->firstChild) {
+                        $parent->insertBefore($el->firstChild, $el);
+                    }
+                    $parent->removeChild($el);
+                }
+                continue;
+            }
+            $allowAttrs = $allowed[$tag];
+            if ($el->hasAttributes()) {
+                $toRemove = [];
+                foreach ($el->attributes as $attr) {
+                    $name = strtolower($attr->name);
+                    if (str_starts_with($name, 'on') || !in_array($name, $allowAttrs, true)) {
+                        $toRemove[] = $attr->name;
+                        continue;
+                    }
+                    $val = trim($attr->value);
+                    if ($name === 'href' || $name === 'src') {
+                        $lower = strtolower($val);
+                        if (str_starts_with($lower, 'javascript:') || str_starts_with($lower, 'data:text/html')) {
+                            $toRemove[] = $attr->name;
+                            continue;
+                        }
+                        if ($name === 'href' && !preg_match('#^(https?:)?//|^/|^mailto:|^#|^tel:#i', $val)) {
+                            $toRemove[] = $attr->name;
+                            continue;
+                        }
+                        if ($name === 'src' && !preg_match('#^(https?:)?//|^/#i', $val)) {
+                            $toRemove[] = $attr->name;
+                        }
+                    }
+                    if ($name === 'target' && $val !== '_blank' && $val !== '_self') {
+                        $toRemove[] = $attr->name;
+                    }
+                }
+                foreach ($toRemove as $n) {
+                    $el->removeAttribute($n);
+                }
+            }
+            if ($tag === 'a' && $el->getAttribute('target') === '_blank') {
+                $rel = $el->getAttribute('rel');
+                if ($rel === '') {
+                    $el->setAttribute('rel', 'noopener noreferrer');
+                } elseif (!str_contains($rel, 'noopener')) {
+                    $el->setAttribute('rel', trim($rel . ' noopener noreferrer'));
+                }
+            }
+        }
+    }
+
+    $root = $dom->getElementById('cp-sanitize-root');
+    $out = '';
+    if ($root) {
+        foreach ($root->childNodes as $child) {
+            $out .= $dom->saveHTML($child);
+        }
+    }
+    libxml_clear_errors();
+    libxml_use_internal_errors($prev);
+
+    return $out;
+}
+
 function redirect(string $path): never
 {
     header('Location: ' . app_url($path));
@@ -669,12 +917,75 @@ function ticker_resultados(): array
 
 function social_facebook_url(): string
 {
-    return env('SOCIAL_FACEBOOK', 'https://www.facebook.com/') ?? 'https://www.facebook.com/';
+    $default = 'https://www.facebook.com/profile.php?id=61584767852507';
+    return env('SOCIAL_FACEBOOK', $default) ?? $default;
 }
 
 function social_instagram_url(): string
 {
-    return env('SOCIAL_INSTAGRAM', 'https://www.instagram.com/') ?? 'https://www.instagram.com/';
+    $default = 'https://www.instagram.com/futbolistas.chilenos/';
+    return env('SOCIAL_INSTAGRAM', $default) ?? $default;
+}
+
+/** Microsoft Clarity project ID (tracking). Export JWT lives offline — never in HTML. */
+function clarity_project_id(): string
+{
+    return trim((string) (env('CLARITY_PROJECT_ID', 'AVgYQzF1Q6aDdBCEmRNkUA') ?? 'AVgYQzF1Q6aDdBCEmRNkUA'));
+}
+
+/** Google AdSense publisher ID */
+function adsense_client_id(): string
+{
+    return trim((string) (env('ADSENSE_CLIENT_ID', 'ca-pub-9876535709659512') ?? 'ca-pub-9876535709659512'));
+}
+
+/**
+ * Escudo + nombre de club (o jugador con escudo de club).
+ * Uso: render_entity_with_crest($nombre, $slug, $escudo, ['href' => ..., 'size' => 28])
+ *
+ * @param array{href?:string,size?:int,class?:string,show_name?:bool,sub?:string} $opts
+ */
+function render_entity_with_crest(string $name, ?string $slug = null, ?string $escudo = null, array $opts = []): string
+{
+    $name = trim($name);
+    if ($name === '' && ($escudo === null || $escudo === '')) {
+        return '—';
+    }
+    $size = (int) ($opts['size'] ?? 28);
+    $class = trim('club-cell ' . (string) ($opts['class'] ?? ''));
+    $showName = $opts['show_name'] ?? true;
+    $sub = trim((string) ($opts['sub'] ?? ''));
+    $href = $opts['href'] ?? null;
+    if ($href === null && $slug) {
+        $href = app_url('/club/' . $slug);
+    }
+
+    if (($escudo === null || $escudo === '') && $slug) {
+        $escudo = club_escudo_url($slug);
+    }
+    if (($escudo === null || $escudo === '') && $name !== '') {
+        $escudo = club_escudo_url(slugify($name));
+    }
+
+    $html = '<div class="' . e(trim($class)) . '">';
+    if ($escudo) {
+        $html .= '<img class="club-mini" src="' . e(app_url($escudo)) . '" alt="' . e($name) . '"'
+            . ' width="' . $size . '" height="' . $size . '" loading="lazy"'
+            . ' onerror="this.style.display=\'none\'" />';
+    }
+    if ($showName) {
+        $inner = e($name !== '' ? $name : '—');
+        if ($href) {
+            $html .= '<a class="club-cell-name" href="' . e($href) . '">' . $inner . '</a>';
+        } else {
+            $html .= '<span class="club-cell-name">' . $inner . '</span>';
+        }
+        if ($sub !== '') {
+            $html .= '<span class="club-cell-sub">' . e($sub) . '</span>';
+        }
+    }
+    $html .= '</div>';
+    return $html;
 }
 
 /** Bloque CTA dentro de una nota (HTML seguro) */

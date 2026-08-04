@@ -34,7 +34,7 @@ require INCLUDES_PATH . '/header.php';
       </figure>
     <?php endif; ?>
     <div class="article-body">
-      <?= $e['cuerpo'] ?? '' ?>
+      <?= sanitize_html($e['cuerpo'] ?? '') ?>
     </div>
     <?php if (!empty($e['video_url'])): ?>
       <p><a class="btn btn-primary" href="<?= e($e['video_url']) ?>" rel="noopener noreferrer" target="_blank">Ver video</a></p>

@@ -1361,8 +1361,46 @@ img[src*="/assets/escudos/"] {
   background: rgba(235,124,43,.1);
 }
 
-.club-cell { display: flex; align-items: center; gap: .55rem; }
-.club-mini { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+.club-cell {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .45rem .55rem;
+  min-width: 0;
+}
+.club-cell--table { flex-wrap: nowrap; }
+.club-cell--inline {
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 0 .15rem;
+}
+.club-cell--player .club-cell-name {
+  font-weight: 600;
+  min-width: 0;
+}
+.club-cell-name {
+  min-width: 0;
+  line-height: 1.25;
+}
+.club-cell-sub {
+  width: 100%;
+  font-size: .75rem;
+  color: var(--muted);
+  margin-left: calc(28px + .55rem);
+}
+.club-mini {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.entity-club-line .club-cell { margin-top: .25rem; }
+.data-table--programacion td .club-cell { max-width: 14rem; }
+.data-table--programacion .club-cell-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .col-pos { width: 3rem; text-align: center !important; }
 .col-pts { font-family: var(--font-display); }
 .pos-badge {

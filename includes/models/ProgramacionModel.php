@@ -7,27 +7,76 @@ final class ProgramacionModel
     {
         $pdo = Database::pdo();
         if (!$pdo) {
-            return self::demo($slug);
+            return self::withEscudos(self::demo($slug));
         }
         try {
             if ($slug) {
                 $st = $pdo->prepare(
-                    "SELECT p.* FROM programacion p
+                    "SELECT p.*,
+                            cl.slug AS club_local_slug, cl.escudo_url AS escudo_local_db,
+                            cv.slug AS club_visita_slug, cv.escudo_url AS escudo_visita_db
+                     FROM programacion p
                      LEFT JOIN categorias c ON c.id = p.categoria_id
+                     LEFT JOIN clubes cl ON cl.id = p.club_local_id
+                     LEFT JOIN clubes cv ON cv.id = p.club_visita_id
                      WHERE c.slug = ? AND p.fecha >= CURDATE()
                      ORDER BY p.fecha, p.hora"
                 );
                 $st->execute([$slug]);
             } else {
                 $st = $pdo->query(
-                    "SELECT * FROM programacion WHERE fecha >= CURDATE() ORDER BY fecha, hora LIMIT 30"
+                    "SELECT p.*,
+                            cl.slug AS club_local_slug, cl.escudo_url AS escudo_local_db,
+                            cv.slug AS club_visita_slug, cv.escudo_url AS escudo_visita_db
+                     FROM programacion p
+                     LEFT JOIN clubes cl ON cl.id = p.club_local_id
+                     LEFT JOIN clubes cv ON cv.id = p.club_visita_id
+                     WHERE p.fecha >= CURDATE()
+                     ORDER BY p.fecha, p.hora
+                     LIMIT 30"
                 );
             }
             $rows = $st->fetchAll() ?: [];
-            return $rows ?: self::demo($slug);
+            return self::withEscudos($rows ?: self::demo($slug));
         } catch (Throwable $e) {
-            return self::demo($slug);
+            return self::withEscudos(self::demo($slug));
         }
+    }
+
+    /**
+     * Normaliza escudos/slugs para la UI (siempre hay path de escudo si el nombre se reconoce).
+     * @param list<array<string,mixed>> $rows
+     * @return list<array<string,mixed>>
+     */
+    private static function withEscudos(array $rows): array
+    {
+        $out = [];
+        foreach ($rows as $r) {
+            $local = (string) ($r['local'] ?? '');
+            $visita = (string) ($r['visita'] ?? '');
+            $lSlug = (string) ($r['club_local_slug'] ?? '');
+            $vSlug = (string) ($r['club_visita_slug'] ?? '');
+            if ($lSlug === '' && $local !== '') {
+                $lSlug = slugify($local);
+            }
+            if ($vSlug === '' && $visita !== '') {
+                $vSlug = slugify($visita);
+            }
+            $escL = (string) ($r['escudo_local'] ?? $r['escudo_local_db'] ?? '');
+            $escV = (string) ($r['escudo_visita'] ?? $r['escudo_visita_db'] ?? '');
+            if ($escL === '' && $lSlug !== '') {
+                $escL = club_escudo_url($lSlug);
+            }
+            if ($escV === '' && $vSlug !== '') {
+                $escV = club_escudo_url($vSlug);
+            }
+            $r['club_local_slug'] = $lSlug;
+            $r['club_visita_slug'] = $vSlug;
+            $r['escudo_local'] = $escL;
+            $r['escudo_visita'] = $escV;
+            $out[] = $r;
+        }
+        return $out;
     }
 
     /** @return list<array<string,mixed>> */

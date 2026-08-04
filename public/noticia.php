@@ -70,7 +70,10 @@ require INCLUDES_PATH . '/header.php';
 
 
   <div class="article-body">
-    <?= $noticia['contenido'] ?? '<p>' . e($noticia['extracto'] ?? '') . '</p>' ?>
+    <?php
+      $bodyHtml = sanitize_html($noticia['contenido'] ?? '');
+      echo $bodyHtml !== '' ? $bodyHtml : '<p>' . e($noticia['extracto'] ?? '') . '</p>';
+    ?>
   </div>
 
   <?php if (!empty($noticia['imagen_credito'])): ?>

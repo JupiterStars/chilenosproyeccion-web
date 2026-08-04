@@ -120,11 +120,16 @@ require INCLUDES_PATH . '/header.php';
                     <tr>
                       <td class="col-pos"><span class="pos-badge"><?= $i + 1 ?></span></td>
                       <td>
-                        <?php if ($jSlug): ?>
-                          <a href="<?= e(app_url('/jugador/' . $jSlug)) ?>"><strong><?= e($g['jugador'] ?? '') ?></strong></a>
-                        <?php else: ?>
-                          <strong><?= e($g['jugador'] ?? '') ?></strong>
-                        <?php endif; ?>
+                        <div class="club-cell club-cell--player">
+                          <?php if ($esc): ?>
+                            <img class="club-mini" src="<?= e(app_url($esc)) ?>" alt="<?= e($clubNom) ?>" title="<?= e($clubNom) ?>" width="24" height="24" loading="lazy" onerror="this.style.display='none'" />
+                          <?php endif; ?>
+                          <?php if ($jSlug): ?>
+                            <a class="club-cell-name" href="<?= e(app_url('/jugador/' . $jSlug)) ?>"><strong><?= e($g['jugador'] ?? '') ?></strong></a>
+                          <?php else: ?>
+                            <strong class="club-cell-name"><?= e($g['jugador'] ?? '') ?></strong>
+                          <?php endif; ?>
+                        </div>
                       </td>
                       <td class="cell-club-ico">
                         <?php if ($esc): ?>
@@ -286,13 +291,17 @@ require INCLUDES_PATH . '/header.php';
       <ol class="feed-scorers-list">
         <?php foreach (array_slice($goleadores, 0, 5) as $i => $g): ?>
           <?php
-            $esc = $g['escudo_url'] ?? '';
-            $club = $g['club'] ?? '';
+            $club = (string) ($g['club'] ?? '');
+            $cSlug = (string) ($g['club_slug'] ?? '');
+            $esc = (string) ($g['escudo_url'] ?? '');
+            if ($esc === '' && $cSlug !== '') {
+                $esc = club_escudo_url($cSlug);
+            }
           ?>
           <li>
             <span class="feed-scorers-pos"><?= $i + 1 ?></span>
             <?php if ($esc): ?>
-              <img src="<?= e(app_url($esc)) ?>" alt="<?= e($club) ?>" width="28" height="28" loading="lazy" />
+              <img src="<?= e(app_url($esc)) ?>" alt="<?= e($club) ?>" title="<?= e($club) ?>" width="28" height="28" loading="lazy" onerror="this.style.display='none'" />
             <?php endif; ?>
             <span class="feed-scorers-name"><?= e($g['jugador'] ?? '') ?></span>
             <span class="feed-scorers-goles"><?= (int) ($g['goles'] ?? 0) ?></span>

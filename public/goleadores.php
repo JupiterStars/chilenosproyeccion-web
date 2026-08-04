@@ -108,11 +108,16 @@ require INCLUDES_PATH . '/header.php';
             <tr class="<?= $pos <= 3 ? 'row-top' : '' ?>">
               <td class="col-pos"><span class="pos-badge"><?= $pos ?></span></td>
               <td>
-                <?php if ($jSlug): ?>
-                  <a href="<?= e(app_url('/jugador/' . $jSlug)) ?>"><strong><?= e($f['jugador'] ?? '') ?></strong></a>
-                <?php else: ?>
-                  <strong><?= e($f['jugador'] ?? '') ?></strong>
-                <?php endif; ?>
+                <div class="club-cell club-cell--player">
+                  <?php if ($esc): ?>
+                    <img class="club-mini" src="<?= e(app_url($esc)) ?>" alt="<?= e($clubNom) ?>" title="<?= e($clubNom) ?>" width="28" height="28" loading="lazy" onerror="this.style.display='none'" />
+                  <?php endif; ?>
+                  <?php if ($jSlug): ?>
+                    <a class="club-cell-name" href="<?= e(app_url('/jugador/' . $jSlug)) ?>"><strong><?= e($f['jugador'] ?? '') ?></strong></a>
+                  <?php else: ?>
+                    <strong class="club-cell-name"><?= e($f['jugador'] ?? '') ?></strong>
+                  <?php endif; ?>
+                </div>
               </td>
               <td class="cell-club-ico">
                 <?php if ($esc): ?>

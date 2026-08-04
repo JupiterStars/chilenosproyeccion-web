@@ -141,14 +141,14 @@ require INCLUDES_PATH . '/header.php';
                 <tr class="<?= e(implode(' ', $rowClass)) ?>">
                   <td class="col-pos"><span class="pos-badge"><?= $pos ?></span></td>
                   <td>
-                    <div class="club-cell">
+                    <div class="club-cell club-cell--table">
                       <?php if ($esc): ?>
-                        <img class="club-mini" src="<?= e(app_url($esc)) ?>" alt="" width="28" height="28" loading="lazy" onerror="this.style.display='none'" />
+                        <img class="club-mini" src="<?= e(app_url($esc)) ?>" alt="<?= e($f['club'] ?? '') ?>" width="28" height="28" loading="lazy" onerror="this.style.display='none'" />
                       <?php endif; ?>
                       <?php if ($slugClub): ?>
-                        <a href="<?= e(app_url('/club/' . $slugClub)) ?>"><?= e($f['club'] ?? '') ?></a>
+                        <a class="club-cell-name" href="<?= e(app_url('/club/' . $slugClub)) ?>"><?= e($f['club'] ?? '') ?></a>
                       <?php else: ?>
-                        <?= e($f['club'] ?? '') ?>
+                        <span class="club-cell-name"><?= e($f['club'] ?? '') ?></span>
                       <?php endif; ?>
                       <?php if ($clasifica): ?>
                         <span class="badge-clasifica"><?= ($reglas['estilo'] ?? '') === 'lider-grupo' ? '1° grupo' : 'Clasifica' ?></span>

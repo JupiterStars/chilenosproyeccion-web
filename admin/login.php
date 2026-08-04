@@ -4,7 +4,10 @@ require_once dirname(__DIR__) . '/includes/bootstrap.php';
 
 $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!csrf_verify($_POST['_csrf'] ?? null)) {
+    $ip = client_ip();
+    if (!rate_limit_allow('admin_login_' . $ip, 10, 600)) {
+        $error = 'Demasiados intentos. Espera unos minutos.';
+    } elseif (!csrf_verify($_POST['_csrf'] ?? null)) {
         $error = 'CSRF inválido';
     } else {
         $email = trim((string) ($_POST['email'] ?? ''));
@@ -24,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: ' . app_url('/admin'));
                 exit;
             }
+            // Delay fijo ante fallo (mitiga timing/brute force ligero)
+            usleep(250_000);
             $error = 'Credenciales incorrectas';
         }
     }

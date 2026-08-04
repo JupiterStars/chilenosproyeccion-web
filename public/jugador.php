@@ -34,13 +34,19 @@ require INCLUDES_PATH . '/header.php';
     <div class="entity-meta">
       <p class="entity-kicker"><?= e($jugador['posicion'] ?? 'Jugador') ?><?php if (!empty($jugador['categoria_nombre'])): ?> · <?= e($jugador['categoria_nombre']) ?><?php endif; ?></p>
       <h1><?= e($jugador['nombre'] ?? '') ?></h1>
-      <p class="page-intro" style="margin-bottom:0">
+      <p class="page-intro entity-club-line" style="margin-bottom:0">
         Club:
-        <?php if ($clubSlug): ?>
-          <a href="<?= e(app_url('/club/' . $clubSlug)) ?>"><strong><?= e($jugador['club_nombre'] ?? '—') ?></strong></a>
-        <?php else: ?>
-          <strong><?= e($jugador['club_nombre'] ?? '—') ?></strong>
-        <?php endif; ?>
+        <?php
+          $clubNom = (string) ($jugador['club_nombre'] ?? '—');
+          $escJ = (string) ($jugador['escudo_url'] ?? '');
+          if ($escJ === '' && $clubSlug) {
+              $escJ = club_escudo_url($clubSlug);
+          }
+          echo render_entity_with_crest($clubNom, $clubSlug, $escJ !== '' ? $escJ : null, [
+              'size' => 28,
+              'class' => 'club-cell--inline',
+          ]);
+        ?>
         <?php if ($edad !== null): ?> · <?= $edad ?> años<?php endif; ?>
       </p>
     </div>

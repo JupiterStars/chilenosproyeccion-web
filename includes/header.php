@@ -38,16 +38,29 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
   <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
   <meta name="color-scheme" content="light dark" />
-  <!-- Google Tag Manager -->
+  <!-- Google Tag Manager (GA4 / tags vía GTM-5MHHWR6C) -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-5MHHWR6C');</script>
   <!-- End Google Tag Manager -->
-  <!-- Google AdSense (auto ads — Google elige ubicaciones) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9876535709659512"
+  <!-- Google AdSense (verificación + auto ads) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?= e(adsense_client_id()) ?>"
      crossorigin="anonymous"></script>
+  <?php
+    $clarityId = clarity_project_id();
+    if ($clarityId !== ''):
+  ?>
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", <?= json_encode($clarityId, JSON_UNESCAPED_SLASHES) ?>);
+  </script>
+  <?php endif; ?>
   <script>
     (function () {
       try {
@@ -62,7 +75,7 @@ $faviconFc = app_url('/assets/brand/favicon-fc.png');
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804g" />
+  <link rel="stylesheet" href="<?= e(app_url('/css/styles.css')) ?>?v=20260804h" />
 </head>
 <body class="<?= e($bodyClass) ?>">
   <!-- Google Tag Manager (noscript) -->

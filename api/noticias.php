@@ -10,10 +10,27 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/includes/bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
+// No indexar API
+header('X-Robots-Tag: noindex, nofollow');
 
-$apiKey = $_SERVER['HTTP_X_API_KEY'] ?? '';
-$expected = env('HERMES_API_KEY', '');
+$ip = client_ip();
+
+// Rate limit por IP (auth fallida y uso total)
+if (!rate_limit_allow('api_noticias_ip_' . $ip, 60, 60)) {
+    http_response_code(429);
+    echo json_encode(['error' => 'Demasiadas solicitudes']);
+    exit;
+}
+
+$apiKey = (string) ($_SERVER['HTTP_X_API_KEY'] ?? '');
+$expected = (string) (env('HERMES_API_KEY', '') ?? '');
 if ($expected === '' || !hash_equals($expected, $apiKey)) {
+    // Limitar fuerza bruta de keys
+    if (!rate_limit_allow('api_noticias_authfail_' . $ip, 15, 60)) {
+        http_response_code(429);
+        echo json_encode(['error' => 'Demasiadas solicitudes']);
+        exit;
+    }
     http_response_code(401);
     echo json_encode(['error' => 'No autorizado']);
     exit;
@@ -29,7 +46,19 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST') {
+    // Publicaciones: más estricto
+    if (!rate_limit_allow('api_noticias_post_' . $ip, 20, 60)) {
+        http_response_code(429);
+        echo json_encode(['error' => 'Demasiadas publicaciones']);
+        exit;
+    }
+
     $raw = file_get_contents('php://input') ?: '';
+    if (strlen($raw) > 1_500_000) {
+        http_response_code(413);
+        echo json_encode(['error' => 'Payload demasiado grande']);
+        exit;
+    }
     $body = json_decode($raw, true);
     if (!is_array($body)) {
         http_response_code(400);
@@ -38,10 +67,16 @@ if ($method === 'POST') {
     }
 
     $titulo = trim((string) ($body['titulo'] ?? ''));
-    $contenido = (string) ($body['contenido'] ?? '');
+    // Sanitizar HTML entrante de Hermes (mismo filtro que el front)
+    $contenido = sanitize_html((string) ($body['contenido'] ?? ''));
     if ($titulo === '' || $contenido === '') {
         http_response_code(422);
         echo json_encode(['error' => 'titulo y contenido son obligatorios']);
+        exit;
+    }
+    if (mb_strlen($titulo) > 250) {
+        http_response_code(422);
+        echo json_encode(['error' => 'titulo demasiado largo']);
         exit;
     }
 
