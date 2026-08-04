@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
-require_once dirname(__DIR__) . '/includes/bootstrap.php';
+require_once (is_file(__DIR__ . '/includes/bootstrap.php')
+    ? __DIR__ . '/includes/bootstrap.php'
+    : dirname(__DIR__) . '/includes/bootstrap.php');
 
 $cat = trim($_GET['categoria'] ?? 'sub-20') ?: 'sub-20';
 $etiqueta = categoria_etiqueta($cat);

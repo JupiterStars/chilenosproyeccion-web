@@ -1,7 +1,9 @@
 <?php
 // Puede incluirse solo o vía abort_404 (ya con header)
 if (!defined('INCLUDES_PATH')) {
-    require_once dirname(__DIR__) . '/includes/bootstrap.php';
+    require_once (is_file(__DIR__ . '/includes/bootstrap.php')
+    ? __DIR__ . '/includes/bootstrap.php'
+    : dirname(__DIR__) . '/includes/bootstrap.php');
     $pageTitle = 'Página no encontrada | ChilenosProyección';
     $metaDescription = 'No encontramos esa página en ChilenosProyección.';
     require INCLUDES_PATH . '/header.php';

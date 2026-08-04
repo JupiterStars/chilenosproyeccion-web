@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
-require_once dirname(__DIR__) . '/includes/bootstrap.php';
+require_once (is_file(__DIR__ . '/includes/bootstrap.php')
+    ? __DIR__ . '/includes/bootstrap.php'
+    : dirname(__DIR__) . '/includes/bootstrap.php');
 
 $items = EntrevistaModel::listar(20);
 $pageTitle = 'Entrevistas | ChilenosProyección';

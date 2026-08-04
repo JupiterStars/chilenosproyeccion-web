@@ -72,5 +72,7 @@ foreach ($routes as $pattern => $script) {
 }
 
 http_response_code(404);
-require dirname(__DIR__) . '/includes/bootstrap.php';
+require (is_file(__DIR__ . '/includes/bootstrap.php')
+    ? __DIR__ . '/includes/bootstrap.php'
+    : dirname(__DIR__) . '/includes/bootstrap.php');
 abort_404();
