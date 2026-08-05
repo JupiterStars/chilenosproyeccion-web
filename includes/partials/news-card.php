@@ -2,19 +2,25 @@
 /** @var array $n|$noticia */
 $n = $n ?? $noticia ?? [];
 $url = app_url('/noticia/' . ($n['slug'] ?? ''));
-$img = $n['imagen_destacada_url'] ?? '/assets/brand/goleadores-sub20.jpg';
-if ($img && !str_starts_with($img, 'http') && !str_starts_with($img, '/')) {
-    $img = '/' . $img;
-}
+$imgRaw = trim((string) ($n['imagen_destacada_url'] ?? ''));
+$sinImg = ($imgRaw === '' || $imgRaw === 'none' || $imgRaw === '-');
+$img = $sinImg ? '' : noticia_img_url($n);
 $cat = $n['categoria_nombre'] ?? 'Noticia';
+$dorada = noticia_tiene_etiqueta_dorada($n);
 ?>
-<article class="news-card">
+<article class="news-card<?= $dorada ? ' news-card--gold' : '' ?><?= $sinImg ? ' news-card--no-img' : '' ?>">
   <a href="<?= e($url) ?>">
-    <div class="news-card-media">
-      <img src="<?= e(str_starts_with((string)$img, 'http') ? $img : app_url($img)) ?>" alt="<?= e($n['imagen_alt'] ?? $n['titulo'] ?? '') ?>" loading="lazy" />
+    <div class="news-card-media<?= $sinImg ? ' news-card-media--empty' : '' ?>">
+      <?php if (!$sinImg): ?>
+        <img src="<?= e($img) ?>" alt="<?= e($n['imagen_alt'] ?? $n['titulo'] ?? '') ?>" loading="lazy" />
+      <?php endif; ?>
     </div>
     <div class="news-card-body">
-      <span class="badge"><?= e($cat) ?></span>
+      <?php if ($dorada): ?>
+        <span class="badge badge--gold">Goleada</span>
+      <?php else: ?>
+        <span class="badge"><?= e($cat) ?></span>
+      <?php endif; ?>
       <h3><?= e($n['titulo'] ?? '') ?></h3>
       <?php if (!empty($n['extracto'])): ?>
         <p><?= e($n['extracto']) ?></p>

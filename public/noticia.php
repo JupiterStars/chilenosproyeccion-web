@@ -47,19 +47,31 @@ $canonical = app_url('/noticia/' . $slug);
 require INCLUDES_PATH . '/header.php';
 ?>
 <article class="container article">
-  <div class="article-hero">
-    <img
-      src="<?= e(app_url($noticia['imagen_destacada_url'] ?? '/assets/brand/goleadores-sub20.jpg')) ?>"
-      alt="<?= e($noticia['imagen_alt'] ?? $noticia['titulo']) ?>"
-      loading="eager"
-      fetchpriority="high"
-    />
-  </div>
-  <?php if (!empty($noticia['categoria_slug'])): ?>
-    <a class="badge" href="<?= e(app_url('/futbol-joven/' . $noticia['categoria_slug'])) ?>">
-      <?= e($noticia['categoria_nombre'] ?? '') ?>
-    </a>
+  <?php
+    $artImg = noticia_img_url($noticia);
+  ?>
+  <?php if ($artImg !== ''): ?>
+    <div class="article-hero">
+      <img
+        src="<?= e($artImg) ?>"
+        alt="<?= e($noticia['imagen_alt'] ?? $noticia['titulo']) ?>"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+  <?php else: ?>
+    <div class="article-hero article-hero--empty" aria-hidden="true"></div>
   <?php endif; ?>
+  <div class="article-badges">
+    <?php if (noticia_tiene_etiqueta_dorada($noticia)): ?>
+      <span class="badge badge--gold">Goleada</span>
+    <?php endif; ?>
+    <?php if (!empty($noticia['categoria_slug'])): ?>
+      <a class="badge" href="<?= e(app_url('/futbol-joven/' . $noticia['categoria_slug'])) ?>">
+        <?= e($noticia['categoria_nombre'] ?? '') ?>
+      </a>
+    <?php endif; ?>
+  </div>
   <h1><?= e($noticia['titulo']) ?></h1>
   <div class="article-meta">
     <?= e($noticia['autor_nombre'] ?? 'Redacción ChilenosProyección') ?>

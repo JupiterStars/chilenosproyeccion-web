@@ -3,6 +3,54 @@ declare(strict_types=1);
 
 final class NoticiaModel
 {
+    /** Adjunta tag_slugs (csv) a cada fila para badges (ej. goleada dorada). */
+    private static function conTags(array $rows): array
+    {
+        if (!$rows) {
+            return $rows;
+        }
+        $pdo = Database::pdo();
+        if (!$pdo) {
+            return $rows;
+        }
+        $ids = [];
+        foreach ($rows as $r) {
+            $id = (int) ($r['id'] ?? 0);
+            if ($id > 0) {
+                $ids[] = $id;
+            }
+        }
+        if (!$ids) {
+            return $rows;
+        }
+        try {
+            $in = implode(',', array_fill(0, count($ids), '?'));
+            $st = $pdo->prepare(
+                "SELECT nt.noticia_id, GROUP_CONCAT(t.slug ORDER BY t.slug SEPARATOR ',') AS tag_slugs,
+                        GROUP_CONCAT(t.nombre ORDER BY t.slug SEPARATOR ',') AS tag_nombres
+                 FROM noticia_tag nt
+                 JOIN tags t ON t.id = nt.tag_id
+                 WHERE nt.noticia_id IN ($in)
+                 GROUP BY nt.noticia_id"
+            );
+            $st->execute($ids);
+            $map = [];
+            foreach ($st->fetchAll() as $row) {
+                $map[(int) $row['noticia_id']] = $row;
+            }
+            foreach ($rows as &$r) {
+                $id = (int) ($r['id'] ?? 0);
+                $r['tag_slugs'] = $map[$id]['tag_slugs'] ?? '';
+                $r['tag_nombres'] = $map[$id]['tag_nombres'] ?? '';
+                $r['etiqueta_dorada'] = str_contains((string) ($r['tag_slugs'] ?? ''), 'goleada') ? 1 : 0;
+            }
+            unset($r);
+        } catch (Throwable $e) {
+            error_log($e->getMessage());
+        }
+        return $rows;
+    }
+
     public static function destacadas(int $limit = 5): array
     {
         $pdo = Database::pdo();
@@ -23,7 +71,7 @@ final class NoticiaModel
             $st->bindValue(':lim', $limit, PDO::PARAM_INT);
             $st->execute();
             $rows = $st->fetchAll();
-            return $rows ?: array_slice(demo_noticias_destacadas(), 0, $limit);
+            return self::conTags($rows ?: array_slice(demo_noticias_destacadas(), 0, $limit));
         } catch (Throwable $e) {
             error_log($e->getMessage());
             return array_slice(demo_noticias_destacadas(), 0, $limit);
@@ -58,7 +106,8 @@ final class NoticiaModel
             $st->bindValue(':off', $offset, PDO::PARAM_INT);
             $st->execute();
             $rows = $st->fetchAll();
-            return $rows ?: ($categoriaSlug ? [] : array_slice(demo_noticias_destacadas(), 0, $limit));
+            $out = $rows ?: ($categoriaSlug ? [] : array_slice(demo_noticias_destacadas(), 0, $limit));
+            return self::conTags($out);
         } catch (Throwable $e) {
             error_log($e->getMessage());
             return array_slice(demo_noticias_destacadas(), 0, $limit);
@@ -112,7 +161,11 @@ final class NoticiaModel
             );
             $st->execute([$slug]);
             $row = $st->fetch();
-            return $row ?: null;
+            if (!$row) {
+                return null;
+            }
+            $enriched = self::conTags([$row]);
+            return $enriched[0] ?? $row;
         } catch (Throwable $e) {
             error_log($e->getMessage());
             return null;

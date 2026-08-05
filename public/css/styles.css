@@ -831,6 +831,48 @@ body.nav-open { overflow: hidden; touch-action: none; }
   color: var(--color-negro); background: var(--color-naranjo);
   padding: .2rem .5rem; border-radius: 4px; margin-bottom: .55rem;
 }
+/* Etiqueta dorada (Goleada) */
+.badge--gold {
+  color: #1a1400;
+  background: linear-gradient(135deg, #f6e27a 0%, #d4af37 45%, #b8860b 100%);
+  border: 1px solid rgba(184, 134, 11, 0.55);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 2px 8px rgba(212, 175, 55, 0.35);
+}
+.badge--sm {
+  font-size: .58rem;
+  padding: .12rem .4rem;
+  margin-bottom: .25rem;
+}
+.article-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-bottom: .65rem;
+}
+.article-badges .badge { margin-bottom: 0; }
+.article-hero--empty {
+  min-height: 8px;
+  background: linear-gradient(90deg, #d4af37, #f6e27a, #d4af37);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+}
+.news-card-media--empty,
+.feed-featured-media--empty,
+.feed-grid-card-media--empty,
+.feed-row-thumb--empty {
+  background: linear-gradient(145deg, #1a1408 0%, #3d2e0a 40%, #d4af37 100%);
+}
+.feed-featured--no-img .feed-featured-media--empty {
+  aspect-ratio: 16 / 5;
+  min-height: 72px;
+}
+.feed-featured--gold {
+  border-color: rgba(212, 175, 55, 0.55);
+  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.18);
+}
+.news-card--gold {
+  border-color: rgba(212, 175, 55, 0.45);
+}
 .news-card h3 {
   font-family: var(--font-display); font-size: 1.05rem; line-height: 1.2;
   text-transform: uppercase; margin-bottom: .4rem; color: var(--fg);

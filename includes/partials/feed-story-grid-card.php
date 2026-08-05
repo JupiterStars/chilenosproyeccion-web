@@ -5,14 +5,20 @@ $url = app_url('/noticia/' . ($n['slug'] ?? ''));
 $img = noticia_img_url($n);
 $tiempo = format_tiempo_relativo($n['fecha_publicacion'] ?? null);
 $cat = $n['categoria_nombre'] ?? '';
+$dorada = noticia_tiene_etiqueta_dorada($n);
+$sinImg = ($img === '');
 ?>
-<article class="feed-grid-card">
+<article class="feed-grid-card<?= $dorada ? ' feed-grid-card--gold' : '' ?>">
   <a class="feed-grid-card-link" href="<?= e($url) ?>">
-    <div class="feed-grid-card-media">
-      <img src="<?= e($img) ?>" alt="<?= e($n['imagen_alt'] ?? $n['titulo'] ?? '') ?>" loading="lazy" />
+    <div class="feed-grid-card-media<?= $sinImg ? ' feed-grid-card-media--empty' : '' ?>">
+      <?php if (!$sinImg): ?>
+        <img src="<?= e($img) ?>" alt="<?= e($n['imagen_alt'] ?? $n['titulo'] ?? '') ?>" loading="lazy" />
+      <?php endif; ?>
     </div>
     <div class="feed-grid-card-body">
-      <?php if ($cat !== ''): ?>
+      <?php if ($dorada): ?>
+        <span class="badge badge--gold badge--sm">Goleada</span>
+      <?php elseif ($cat !== ''): ?>
         <span class="feed-grid-card-cat"><?= e($cat) ?></span>
       <?php endif; ?>
       <h3 class="feed-grid-card-title"><?= e($n['titulo'] ?? '') ?></h3>

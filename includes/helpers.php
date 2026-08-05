@@ -1452,9 +1452,24 @@ function format_tiempo_relativo(?string $datetime): string
 
 function noticia_img_url(array $n): string
 {
-    $img = $n['imagen_destacada_url'] ?? '/assets/brand/goleadores-sub20.jpg';
-    if ($img && !str_starts_with($img, 'http') && !str_starts_with($img, '/')) {
+    $img = trim((string) ($n['imagen_destacada_url'] ?? ''));
+    // Sin imagen explícita: no forzar placeholder de marca
+    if ($img === '' || $img === 'none' || $img === '-') {
+        return '';
+    }
+    if (!str_starts_with($img, 'http') && !str_starts_with($img, '/')) {
         $img = '/' . $img;
     }
-    return str_starts_with((string) $img, 'http') ? (string) $img : app_url((string) $img);
+    return str_starts_with($img, 'http') ? $img : app_url($img);
+}
+
+/** ¿La noticia tiene la etiqueta dorada "Goleada"? */
+function noticia_tiene_etiqueta_dorada(array $n): bool
+{
+    $slugs = $n['tag_slugs'] ?? $n['tags'] ?? '';
+    if (is_array($slugs)) {
+        $slugs = implode(',', $slugs);
+    }
+    $s = strtolower((string) $slugs);
+    return str_contains($s, 'goleada') || !empty($n['etiqueta_dorada']);
 }
