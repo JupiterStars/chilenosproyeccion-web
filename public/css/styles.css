@@ -738,6 +738,26 @@ body.nav-open { overflow: hidden; touch-action: none; }
 .hero-kicker::before {
   content: ""; width: 28px; height: 3px; background: var(--color-naranjo); border-radius: 2px;
 }
+.hero-kicker--gold {
+  color: #f6e27a;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+.hero-kicker--gold::before {
+  background: linear-gradient(90deg, #f6e27a, #d4af37);
+}
+.hero-slide-bg--empty {
+  background: linear-gradient(135deg, #0d0a04 0%, #3d2e0a 42%, #b8860b 100%);
+}
+.hero-slide-bg--empty::after {
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.2) 100%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, transparent 55%);
+}
+.hero-slide--gold .hero-content .btn-primary {
+  background: linear-gradient(135deg, #f6e27a, #d4af37);
+  color: #1a1400;
+  border-color: #d4af37;
+}
 .hero-content h1, .hero-content .hero-title {
   font-family: var(--font-display); font-weight: 700;
   font-size: clamp(1.8rem, 5vw, 3.2rem); line-height: 1.02;

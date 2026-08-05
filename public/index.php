@@ -74,16 +74,27 @@ require INCLUDES_PATH . '/header.php';
   <section class="hero-swiper swiper" aria-label="Destacadas">
     <div class="swiper-wrapper">
       <?php foreach ($destacadas as $i => $slide): ?>
-        <div class="swiper-slide">
-          <div class="hero-slide-bg">
-            <img
-              src="<?= e($slide['imagen_destacada_url'] ?? '/assets/brand/goleadores-sub20.jpg') ?>"
-              alt="<?= e($slide['imagen_alt'] ?? $slide['titulo']) ?>"
-              <?= $i === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"' ?>
-            />
+        <?php
+          $slideImg = noticia_img_url($slide);
+          $slideDorada = noticia_tiene_etiqueta_dorada($slide);
+          $slideNoImg = ($slideImg === '');
+        ?>
+        <div class="swiper-slide<?= $slideNoImg ? ' hero-slide--no-img' : '' ?><?= $slideDorada ? ' hero-slide--gold' : '' ?>">
+          <div class="hero-slide-bg<?= $slideNoImg ? ' hero-slide-bg--empty' : '' ?>">
+            <?php if (!$slideNoImg): ?>
+              <img
+                src="<?= e($slideImg) ?>"
+                alt="<?= e($slide['imagen_alt'] ?? $slide['titulo']) ?>"
+                <?= $i === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"' ?>
+              />
+            <?php endif; ?>
           </div>
           <div class="container hero-content">
-            <p class="hero-kicker"><?= e($slide['categoria_nombre'] ?? 'Destacada') ?></p>
+            <?php if ($slideDorada): ?>
+              <p class="hero-kicker hero-kicker--gold">Goleada</p>
+            <?php else: ?>
+              <p class="hero-kicker"><?= e($slide['categoria_nombre'] ?? 'Destacada') ?></p>
+            <?php endif; ?>
             <h2 class="hero-title">
               <a href="<?= e(app_url('/noticia/' . $slide['slug'])) ?>">
                 <?= e($slide['titulo']) ?>
