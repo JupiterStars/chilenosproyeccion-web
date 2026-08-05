@@ -1,6 +1,7 @@
 <?php
 /** Destacada grande estilo app móvil @var array $n */
-$n = $n ?? $noticia ?? [];
+$n = (isset($noticia) && is_array($noticia)) ? $noticia : ($n ?? []);
+unset($noticia);
 $url = app_url('/noticia/' . ($n['slug'] ?? ''));
 $img = noticia_img_url($n);
 $tiempo = format_tiempo_relativo($n['fecha_publicacion'] ?? null);

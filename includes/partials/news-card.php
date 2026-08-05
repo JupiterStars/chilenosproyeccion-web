@@ -1,6 +1,8 @@
 <?php
 /** @var array $n|$noticia */
-$n = $n ?? $noticia ?? [];
+// Preferir $noticia del loop (evita reutilizar $n de la card anterior)
+$n = (isset($noticia) && is_array($noticia)) ? $noticia : ($n ?? []);
+unset($noticia);
 $url = app_url('/noticia/' . ($n['slug'] ?? ''));
 $imgRaw = trim((string) ($n['imagen_destacada_url'] ?? ''));
 $sinImg = ($imgRaw === '' || $imgRaw === 'none' || $imgRaw === '-');
